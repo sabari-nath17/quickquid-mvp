@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-20T00:00:00.000Z",
+  "title": "Design System: QuickQuid",
+  "extensions": {
+    "colorMeta": {
+      "authority-blue":  { "role": "primary",     "displayName": "Authority Blue",  "canonical": "oklch(0.45 0.18 250)", "tonalRamp": ["oklch(0.15 0.18 250)", "oklch(0.22 0.18 250)", "oklch(0.30 0.18 250)", "oklch(0.38 0.18 250)", "oklch(0.45 0.18 250)", "oklch(0.55 0.14 250)", "oklch(0.70 0.10 250)", "oklch(0.85 0.06 250)"] },
+      "canvas-white":    { "role": "neutral-bg",   "displayName": "Canvas White",    "canonical": "oklch(0.99 0.002 220)", "tonalRamp": ["oklch(0.20 0.005 220)", "oklch(0.35 0.005 220)", "oklch(0.50 0.004 220)", "oklch(0.65 0.003 220)", "oklch(0.78 0.003 220)", "oklch(0.88 0.002 220)", "oklch(0.94 0.002 220)", "oklch(0.99 0.002 220)"] },
+      "ink-navy":        { "role": "neutral-text",  "displayName": "Ink Navy",        "canonical": "oklch(0.13 0.04 240)", "tonalRamp": ["oklch(0.13 0.04 240)", "oklch(0.22 0.04 240)", "oklch(0.33 0.04 240)", "oklch(0.44 0.04 240)", "oklch(0.55 0.04 240)", "oklch(0.66 0.04 240)", "oklch(0.78 0.02 240)", "oklch(0.92 0.01 240)"] },
+      "surface-white":   { "role": "neutral-surface", "displayName": "Surface White",  "canonical": "oklch(1 0 0)",         "tonalRamp": ["oklch(0.15 0 0)", "oklch(0.30 0 0)", "oklch(0.50 0 0)", "oklch(0.65 0 0)", "oklch(0.80 0 0)", "oklch(0.90 0 0)", "oklch(0.96 0 0)", "oklch(1 0 0)"] },
+      "silver-mist":     { "role": "neutral-muted", "displayName": "Silver Mist",     "canonical": "oklch(0.96 0.005 220)", "tonalRamp": ["oklch(0.20 0.005 220)", "oklch(0.35 0.005 220)", "oklch(0.50 0.005 220)", "oklch(0.65 0.005 220)", "oklch(0.78 0.005 220)", "oklch(0.88 0.005 220)", "oklch(0.93 0.005 220)", "oklch(0.96 0.005 220)"] },
+      "muted-ink":       { "role": "neutral-secondary-text", "displayName": "Muted Ink", "canonical": "oklch(0.5 0.04 240)", "tonalRamp": ["oklch(0.10 0.04 240)", "oklch(0.20 0.04 240)", "oklch(0.30 0.04 240)", "oklch(0.40 0.04 240)", "oklch(0.50 0.04 240)", "oklch(0.65 0.04 240)", "oklch(0.78 0.03 240)", "oklch(0.90 0.02 240)"] },
+      "destructive-red": { "role": "error",         "displayName": "Destructive Red", "canonical": "oklch(0.577 0.245 27.325)", "tonalRamp": ["oklch(0.20 0.245 27)", "oklch(0.30 0.245 27)", "oklch(0.40 0.245 27)", "oklch(0.50 0.245 27)", "oklch(0.577 0.245 27)", "oklch(0.68 0.20 27)", "oklch(0.78 0.15 27)", "oklch(0.90 0.08 27)"] }
+    },
+    "typographyMeta": {
+      "display":  { "displayName": "Display",  "purpose": "Hero headings on landing page only. Cap at 3.5rem." },
+      "headline": { "displayName": "Headline", "purpose": "Page titles, dialog headings, dashboard section headers." },
+      "title":    { "displayName": "Title",    "purpose": "Card headings, widget titles, table section labels." },
+      "body":     { "displayName": "Body",     "purpose": "Worker bios, job descriptions, admin notes. 65-75ch max line length." },
+      "label":    { "displayName": "Label",    "purpose": "Status badges, metadata, table column headers, nav labels." }
+    },
+    "shadows": [
+      { "name": "card-rest",    "value": "0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04)", "purpose": "Applied to interactive cards at rest. Barely perceptible lift off the canvas." },
+      { "name": "card-hover",   "value": "0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06)", "purpose": "Cards on hover with translateY(-2px). 200ms ease-out." },
+      { "name": "modal",        "value": "0 20px 60px rgba(0,0,0,0.15)", "purpose": "Dialogs and alert dialogs. Paired with backdrop blur." },
+      { "name": "popover",      "value": "0 8px 24px rgba(0,0,0,0.12)", "purpose": "Dropdown menus, tooltips, popovers." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default easing for state transitions. 200ms." },
+      { "name": "ease-out",      "value": "cubic-bezier(0, 0, 0.2, 1)",   "purpose": "Elements entering the screen. 150ms." },
+      { "name": "ease-in",       "value": "cubic-bezier(0.4, 0, 1, 1)",   "purpose": "Elements leaving the screen. 100ms." }
+    ],
+    "breakpoints": [
+      { "name": "sm",  "value": "640px"  },
+      { "name": "md",  "value": "768px"  },
+      { "name": "lg",  "value": "1024px" },
+      { "name": "xl",  "value": "1280px" },
+      { "name": "2xl", "value": "1536px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single primary CTA per screen. Authority Blue background, white label, 10px radius.",
+      "html": "<button class=\"ds-btn-primary\">Get Started</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: oklch(0.45 0.18 250); color: #fff; font-family: 'Source Sans 3', system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; padding: 10px 24px; border: none; border-radius: 10px; cursor: pointer; transition: background 0.2s cubic-bezier(0,0,0.2,1), transform 0.15s cubic-bezier(0,0,0.2,1); white-space: nowrap; } .ds-btn-primary:hover { background: oklch(0.38 0.18 250); } .ds-btn-primary:focus-visible { outline: 2px solid oklch(0.45 0.18 250); outline-offset: 2px; } .ds-btn-primary:active { transform: scale(0.98); } .ds-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary-priority action. Transparent background, Authority Blue text.",
+      "html": "<button class=\"ds-btn-ghost\">Cancel</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: transparent; color: oklch(0.45 0.18 250); font-family: 'Source Sans 3', system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; padding: 10px 24px; border: 1px solid oklch(0.9 0.01 220); border-radius: 10px; cursor: pointer; transition: background 0.15s, border-color 0.15s; white-space: nowrap; } .ds-btn-ghost:hover { background: oklch(0.95 0.01 220); border-color: oklch(0.45 0.18 250 / 0.3); } .ds-btn-ghost:focus-visible { outline: 2px solid oklch(0.45 0.18 250); outline-offset: 2px; } .ds-btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }"
+    },
+    {
+      "name": "Worker Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Core unit of talent display. Surface white, ambient shadow, hover lift, verified badge.",
+      "html": "<div class=\"ds-worker-card\"><div class=\"ds-worker-card__header\"><div class=\"ds-worker-card__avatar\">JD</div><div><div class=\"ds-worker-card__name\">Jane Doe</div><span class=\"ds-verified-badge\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>Verified</span></div></div><p class=\"ds-worker-card__bio\">Full-stack developer with experience in React and Node.js.</p><div class=\"ds-worker-card__skills\"><span class=\"ds-chip\">React</span><span class=\"ds-chip\">TypeScript</span></div></div>",
+      "css": ".ds-worker-card { background: #fff; border-radius: 14px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04); transition: box-shadow 0.2s, transform 0.2s cubic-bezier(0,0,0.2,1); } .ds-worker-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06); transform: translateY(-2px); } .ds-worker-card__header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; } .ds-worker-card__avatar { width: 40px; height: 40px; border-radius: 9999px; background: oklch(0.45 0.18 250); color: #fff; font-family: 'Lexend', sans-serif; font-size: 0.875rem; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; } .ds-worker-card__name { font-family: 'Lexend', system-ui, sans-serif; font-size: 1rem; font-weight: 600; color: oklch(0.13 0.04 240); margin-bottom: 4px; } .ds-verified-badge { display: inline-flex; align-items: center; gap: 4px; background: oklch(0.95 0.06 240); color: oklch(0.35 0.12 240); border: 1px solid oklch(0.80 0.10 240); font-family: 'Source Sans 3', sans-serif; font-size: 0.75rem; font-weight: 500; padding: 2px 8px; border-radius: 9999px; } .ds-worker-card__bio { font-family: 'Source Sans 3', sans-serif; font-size: 0.875rem; color: oklch(0.5 0.04 240); line-height: 1.6; margin-bottom: 12px; } .ds-worker-card__skills { display: flex; flex-wrap: wrap; gap: 6px; } .ds-chip { background: oklch(0.96 0.005 220); color: oklch(0.25 0.06 240); font-family: 'Source Sans 3', sans-serif; font-size: 0.75rem; font-weight: 500; padding: 3px 10px; border-radius: 9999px; border: 1px solid oklch(0.9 0.01 220); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": null,
+      "description": "Standard form input. Silver Mist background, visible border, Authority Blue focus ring.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-label\" for=\"ds-input-example\">LinkedIn URL</label><input class=\"ds-input\" id=\"ds-input-example\" type=\"text\" placeholder=\"https://linkedin.com/in/yourname\" /><span class=\"ds-helper\">Enter your public LinkedIn profile URL</span></div>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; } .ds-label { font-family: 'Source Sans 3', sans-serif; font-size: 0.875rem; font-weight: 500; color: oklch(0.13 0.04 240); } .ds-input { background: oklch(0.96 0.005 220); border: 1px solid oklch(0.9 0.01 220); border-radius: 10px; padding: 10px 14px; font-family: 'Source Sans 3', sans-serif; font-size: 1rem; color: oklch(0.13 0.04 240); outline: none; transition: border-color 0.15s, box-shadow 0.15s; width: 100%; box-sizing: border-box; } .ds-input:focus { border-color: oklch(0.45 0.18 250); box-shadow: 0 0 0 3px oklch(0.45 0.18 250 / 0.20); } .ds-input::placeholder { color: oklch(0.6 0.03 240); } .ds-helper { font-family: 'Source Sans 3', sans-serif; font-size: 0.75rem; color: oklch(0.5 0.04 240); }"
+    },
+    {
+      "name": "Verified Badge",
+      "kind": "custom",
+      "refersTo": "verified-badge",
+      "description": "Trust signal. Appears on verified worker cards. Never text-only — always paired with ShieldCheck icon.",
+      "html": "<span class=\"ds-verified-badge\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"></path><polyline points=\"9 12 11 14 15 10\"></polyline></svg>Verified</span>",
+      "css": ".ds-verified-badge { display: inline-flex; align-items: center; gap: 4px; background: oklch(0.95 0.06 240); color: oklch(0.35 0.12 240); border: 1px solid oklch(0.80 0.10 240); font-family: 'Source Sans 3', sans-serif; font-size: 0.75rem; font-weight: 500; padding: 2px 8px; border-radius: 9999px; white-space: nowrap; }"
+    },
+    {
+      "name": "Stat Widget",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Admin and user dashboard stat card. Large number, label below, optional Authority Blue accent on border-left.",
+      "html": "<div class=\"ds-stat\"><div class=\"ds-stat__value\">24</div><div class=\"ds-stat__label\">Workers Verified</div></div>",
+      "css": ".ds-stat { background: #fff; border-radius: 14px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04); border-left: 3px solid oklch(0.45 0.18 250); } .ds-stat__value { font-family: 'Lexend', system-ui, sans-serif; font-size: 2rem; font-weight: 700; color: oklch(0.13 0.04 240); line-height: 1; margin-bottom: 6px; } .ds-stat__label { font-family: 'Source Sans 3', sans-serif; font-size: 0.875rem; font-weight: 400; color: oklch(0.5 0.04 240); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Trusted Introducer",
+    "overview": "QuickQuid's visual system is built around the moment of introduction — a deliberate, human act that carries real weight. The interface should feel premium but personal, like a discreet referral from someone whose judgment you trust — not a self-serve marketplace, never a gig economy feed. Every surface communicates care and curation.\n\nThe palette is cool blue-on-white with an almost monastic restraint: one authoritative blue, a clean canvas background, and a deep ink for text. Typography is precise and unhurried. Cards lift very gently off the page. The 'Introduce' action gets ceremony: an amber warning, plain language, and no accidental trigger path.\n\nThis system explicitly rejects: the startup-bro aesthetic (no purple gradients, no bold 'disrupting X' copy); the LinkedIn clone energy (no connection-count badges, no resume walls); and the government/legacy dashboard look (no gray data tables, no clunky modal flows).",
+    "keyCharacteristics": [
+      "Blue-and-white, calm authority — never loud or busy",
+      "Whitespace as a trust signal: what isn't there matters as much as what is",
+      "Verified states and admin decisions are visually distinct and given appropriate weight",
+      "Role-appropriate context: each user sees only what's theirs",
+      "One primary action per screen, never competing with secondary noise"
+    ],
+    "rules": [
+      { "name": "The One Blue Rule", "body": "Authority Blue appears on ≤15% of any given screen. Its scarcity is the point — when it shows up, the user knows it matters. Do not tint backgrounds, section headers, or card fills with it.", "section": "colors" },
+      { "name": "The Amber Exception", "body": "The 'Introduce' confirmation dialog is the only place an amber/warning color enters the system. Amber here is earned by context — never use it for generic callouts.", "section": "colors" },
+      { "name": "The Lexend-for-Structure Rule", "body": "Lexend appears only in headings (h1–h6), the logo mark, nav labels, and the .font-heading utility. Source Sans 3 handles all body, form labels, helper text, and button labels.", "section": "typography" },
+      { "name": "The Minimum 16px Body Rule", "body": "Body font size is never below 16px in any breakpoint. Muted/caption text floor is 12px. Never gray-on-gray.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Non-interactive surfaces are completely flat. Shadows appear only in response to state (interactive card, modal, focused popover). Never apply a shadow just to add visual 'interest'.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use Authority Blue for a single primary action per screen. Its scarcity is the trust signal.",
+      "Do show the verified badge (ShieldCheck + 'Verified') on every worker card where isVerified = true.",
+      "Do give the Introduce confirmation dialog an amber warning header and irreversibility language.",
+      "Do use Lexend for all headings and Source Sans 3 for all body, labels, and form text.",
+      "Do maintain muted-ink (oklch(0.5 0.04 240)) as the floor for secondary text.",
+      "Do use text-wrap: balance on page titles and card headings.",
+      "Do pair every destructive action with a confirmation dialog before executing.",
+      "Do show role-specific context only."
+    ],
+    "donts": [
+      "Don't use purple gradients, neon accents, bold 'disrupting X' hero copy, or glassmorphism — startup-bro aesthetic is prohibited.",
+      "Don't show connection counts, profile view tallies, or social-proof-by-volume signals — LinkedIn clone pattern is prohibited.",
+      "Don't use gray data tables, dense 10px labels, or clunky inline form-in-a-table edit patterns — government/legacy look is prohibited.",
+      "Don't place body text below 16px or muted text below 12px.",
+      "Don't apply Authority Blue to backgrounds, section fills, or card borders except in the verified badge.",
+      "Don't use destructive red for caution or warning states — amber is the warning register.",
+      "Don't rely on hover-only affordances for any interactive element.",
+      "Don't place two primary (blue) buttons on the same screen.",
+      "Don't render the Introduce action as a plain text link or icon-only button.",
+      "Don't use placeholder text as the only label for form inputs."
+    ]
+  }
+}

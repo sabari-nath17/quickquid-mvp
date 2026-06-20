@@ -1,0 +1,311 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  WORKER
+  CLIENT
+  ADMIN
+}
+
+enum ApplicationStatus {
+  PENDING
+  UNDER_REVIEW
+  VERIFIED
+  REJECTED
+}
+
+enum VerificationBadge {
+  KYC_VERIFIED
+  SKILL_VERIFIED
+  SQUAD_VOUCHED
+}
+
+enum GeofenceRing {
+  CORE
+  TRANSIT
+  CLOUD
+}
+
+enum ConnectionStatus {
+  PENDING_CONTACT
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  DELIVERED
+  APPROVED
+}
+
+enum SquadRole {
+  LEAD
+  MEMBER
+  CONTRIBUTOR
+}
+
+enum StandbyStatus {
+  AVAILABLE
+  BUSY
+  OFFLINE
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      Role     @default(WORKER)
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workerProfile         WorkerProfile?
+  jobRequirements       JobRequirement[]
+  introducedConnections MatchmakingConnection[] @relation("IntroducedBy")
+  squadMemberships      SquadMembership[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model WorkerProfile {
+  id                 String              @id @default(cuid())
+  userId             String              @unique
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  linkedinUrl        String
+  portfolioUrls      String[]
+  experienceText     String?
+  skills             String[]
+  bio                String?
+  isVerified         Boolean             @default(false)
+  status             ApplicationStatus   @default(PENDING)
+  verificationNotes  String?
+  verificationBadges VerificationBadge[]
+  sandboxScore       Int?
+  candidateCode      String              @unique @default(cuid())
+  isOnStandby        Boolean             @default(false)
+  standbyStatus      StandbyStatus       @default(OFFLINE)
+  fillRate           Float               @default(100)
+  hoursTrained       Int                 @default(0)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  connections        MatchmakingConnection[]
+  sandboxSubmissions SandboxSubmission[]
+  standbyAssignments StandbyAssignment[]
+  reviews            Review[]
+
+  @@index([isVerified])
+  @@index([status])
+  @@index([isOnStandby])
+}
+
+model SandboxChallenge {
+  id            String   @id @default(cuid())
+  title         String
+  description   String
+  skillCategory String
+  questions     Json
+  timeLimit     Int      @default(30)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  submissions SandboxSubmission[]
+}
+
+model SandboxSubmission {
+  id          String           @id @default(cuid())
+  workerId    String
+  challengeId String
+  worker      WorkerProfile    @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  challenge   SandboxChallenge @relation(fields: [challengeId], references: [id])
+  answers     Json
+  score       Int?
+  gradedAt    DateTime?
+  createdAt   DateTime         @default(now())
+
+  @@unique([workerId, challengeId])
+  @@index([workerId])
+}
+
+model Squad {
+  id                    String   @id @default(cuid())
+  name                  String
+  description           String?
+  sharedReputationScore Float    @default(100)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  members SquadMembership[]
+  bids    SquadBid[]
+}
+
+model SquadMembership {
+  id       String    @id @default(cuid())
+  squadId  String
+  userId   String
+  role     SquadRole @default(MEMBER)
+  squad    Squad     @relation(fields: [squadId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt DateTime  @default(now())
+
+  @@unique([squadId, userId])
+  @@index([userId])
+}
+
+model SquadBid {
+  id        String         @id @default(cuid())
+  squadId   String
+  jobId     String
+  squad     Squad          @relation(fields: [squadId], references: [id], onDelete: Cascade)
+  job       JobRequirement @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  message   String?
+  createdAt DateTime       @default(now())
+
+  @@unique([squadId, jobId])
+}
+
+model JobRequirement {
+  id           String       @id @default(cuid())
+  userId       String
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title        String
+  description  String
+  skills       String[]
+  budget       String?
+  budgetMin    Int?
+  budgetMax    Int?
+  timeline     String?
+  geofenceRing GeofenceRing @default(CLOUD)
+  lat          Float?
+  lng          Float?
+  isAiScoped   Boolean      @default(false)
+  aiTiers      Json?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  connections        MatchmakingConnection[]
+  standbyAssignments StandbyAssignment[]
+  squadBids          SquadBid[]
+
+  @@index([userId])
+  @@index([geofenceRing])
+}
+
+model MatchmakingConnection {
+  id                 String           @id @default(cuid())
+  workerId           String
+  jobId              String
+  worker             WorkerProfile    @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  job                JobRequirement   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  isAnonymous        Boolean          @default(true)
+  identityRevealedAt DateTime?
+  introducedAt       DateTime?
+  introducedById     String?
+  introducedBy       User?            @relation("IntroducedBy", fields: [introducedById], references: [id])
+  connectionStatus   ConnectionStatus @default(PENDING_CONTACT)
+  contractStartDate  DateTime?
+  createdAt          DateTime         @default(now())
+
+  milestones Milestone[]
+  review     Review?
+
+  @@unique([workerId, jobId])
+  @@index([workerId])
+  @@index([jobId])
+  @@index([introducedAt])
+  @@index([connectionStatus])
+}
+
+model Milestone {
+  id                String                @id @default(cuid())
+  connectionId      String
+  connection        MatchmakingConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  title             String
+  description       String?
+  amount            Int
+  status            MilestoneStatus       @default(PENDING)
+  clientConfirmedAt DateTime?
+  workerConfirmedAt DateTime?
+  dueDate           DateTime?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  commissionEntry CommissionLedger?
+
+  @@index([connectionId])
+  @@index([status])
+}
+
+model CommissionLedger {
+  id          String    @id @default(cuid())
+  milestoneId String    @unique
+  milestone   Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  grossAmount Int
+  platformFee Int
+  isPaid      Boolean   @default(false)
+  paidAt      DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model StandbyAssignment {
+  id        String         @id @default(cuid())
+  jobId     String
+  workerId  String
+  job       JobRequirement @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  worker    WorkerProfile  @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  isActive  Boolean        @default(true)
+  createdAt DateTime       @default(now())
+
+  @@unique([jobId, workerId])
+  @@index([jobId])
+}
+
+model MerchantOffer {
+  id              String   @id @default(cuid())
+  merchantName    String
+  category        String   @default("Food & Drink")
+  description     String
+  discountPercent Int
+  address         String
+  lat             Float    @default(9.9312)
+  lng             Float    @default(76.2673)
+  qrCode          String   @unique @default(cuid())
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  redemptions MerchantRedemption[]
+}
+
+model MerchantRedemption {
+  id         String        @id @default(cuid())
+  offerId    String
+  workerId   String
+  offer      MerchantOffer @relation(fields: [offerId], references: [id])
+  redeemedAt DateTime      @default(now())
+
+  @@index([offerId])
+  @@index([workerId])
+}
+
+model Review {
+  id           String                @id @default(cuid())
+  connectionId String                @unique
+  workerId     String
+  clientId     String
+  connection   MatchmakingConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  worker       WorkerProfile         @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  rating       Int
+  comment      String?
+  createdAt    DateTime              @default(now())
+
+  @@index([workerId])
+  @@index([clientId])
+}
