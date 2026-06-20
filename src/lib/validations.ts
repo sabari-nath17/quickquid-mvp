@@ -63,9 +63,33 @@ export const reviewSchema = z.object({
   comment: z.string().max(1000).optional(),
 });
 
+export const jobApplicationSchema = z.object({
+  coverLetter: z.string().max(2000).optional(),
+});
+
+export const messageSchema = z.object({
+  content: z.string().min(1, "Message cannot be empty").max(5000, "Message too long"),
+});
+
+export const workSubmissionSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters").max(200),
+  description: z.string().max(3000).optional(),
+  fileUrl: z.string().url("Enter a valid URL").optional().or(z.literal("")),
+  isPreview: z.boolean().default(false),
+});
+
+export const workerProfileExtendedSchema = z.object({
+  avatarUrl: z.string().url("Enter a valid URL").optional().or(z.literal("")),
+  title: z.string().max(120, "Title must be under 120 characters").optional(),
+  hourlyRate: z.coerce.number().int().min(0).max(1000000).optional(),
+});
+
 export type SignUpInput = z.infer<typeof signUpSchema>;
 export type SignInInput = z.infer<typeof signInSchema>;
 export type WorkerProfileInput = z.infer<typeof workerProfileSchema>;
 export type JobRequirementInput = z.infer<typeof jobRequirementSchema>;
 export type WorkerApprovalInput = z.infer<typeof workerApprovalSchema>;
 export type ReviewInput = z.infer<typeof reviewSchema>;
+export type JobApplicationInput = z.infer<typeof jobApplicationSchema>;
+export type MessageInput = z.infer<typeof messageSchema>;
+export type WorkSubmissionInput = z.infer<typeof workSubmissionSchema>;

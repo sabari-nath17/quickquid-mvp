@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
-import { workerProfileSchema } from "@/lib/validations";
+import { workerProfileSchema, workerProfileExtendedSchema } from "@/lib/validations";
 
 export async function submitWorkerProfile(formData: FormData) {
   const session = await requireAuth();
@@ -33,6 +33,16 @@ export async function submitWorkerProfile(formData: FormData) {
     return { error: parsed.error.issues[0].message };
   }
 
+  const extRaw = {
+    avatarUrl: (formData.get("avatarUrl") as string) || undefined,
+    title: (formData.get("title") as string) || undefined,
+    hourlyRate: formData.get("hourlyRate") ? Number(formData.get("hourlyRate")) : undefined,
+  };
+  const parsedExt = workerProfileExtendedSchema.safeParse(extRaw);
+  if (!parsedExt.success) {
+    return { error: parsedExt.error.issues[0].message };
+  }
+
   const existing = await prisma.workerProfile.findUnique({
     where: { userId: session.id },
   });
@@ -42,6 +52,9 @@ export async function submitWorkerProfile(formData: FormData) {
       where: { userId: session.id },
       data: {
         ...parsed.data,
+        avatarUrl: parsedExt.data.avatarUrl || existing.avatarUrl,
+        title: parsedExt.data.title ?? existing.title,
+        hourlyRate: parsedExt.data.hourlyRate ?? existing.hourlyRate,
         status: "PENDING",
         isVerified: false,
         verificationNotes: null,
@@ -52,6 +65,9 @@ export async function submitWorkerProfile(formData: FormData) {
       data: {
         userId: session.id,
         ...parsed.data,
+        avatarUrl: parsedExt.data.avatarUrl || null,
+        title: parsedExt.data.title || null,
+        hourlyRate: parsedExt.data.hourlyRate ?? null,
       },
     });
   }

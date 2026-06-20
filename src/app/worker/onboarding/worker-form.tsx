@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { submitWorkerProfile } from "@/app/actions/worker";
-import { Globe, FileText, User, AlertCircle } from "lucide-react";
+import { Globe, FileText, User, AlertCircle, ImageIcon, Briefcase } from "lucide-react";
 
 type ActionState = { error?: string } | null;
 
@@ -22,6 +22,9 @@ interface WorkerFormProps {
     skills: string[];
     bio: string | null;
     experienceText: string | null;
+    avatarUrl?: string | null;
+    title?: string | null;
+    hourlyRate?: number | null;
   } | null;
 }
 
@@ -36,6 +39,57 @@ export function WorkerForm({ existing }: WorkerFormProps) {
           {state.error}
         </div>
       )}
+
+      {/* Profile Header */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2 font-heading">
+            <ImageIcon className="w-4 h-4 text-primary" />
+            Profile Photo &amp; Headline
+          </CardTitle>
+          <CardDescription>Your public-facing identity on QuickQuid</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="avatarUrl">Profile Photo URL (optional)</Label>
+            <Input
+              id="avatarUrl"
+              name="avatarUrl"
+              type="url"
+              placeholder="https://example.com/your-photo.jpg"
+              defaultValue={existing?.avatarUrl ?? ""}
+              className="h-11"
+            />
+            <p className="text-xs text-muted-foreground">
+              Paste a direct image URL. File upload coming soon.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="title">Professional Headline (optional)</Label>
+            <Input
+              id="title"
+              name="title"
+              type="text"
+              placeholder="e.g. Senior Full-Stack Developer • 5 yrs exp"
+              defaultValue={existing?.title ?? ""}
+              maxLength={120}
+              className="h-11"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="hourlyRate">Hourly Rate in ₹ (optional)</Label>
+            <Input
+              id="hourlyRate"
+              name="hourlyRate"
+              type="number"
+              min={0}
+              placeholder="e.g. 2500"
+              defaultValue={existing?.hourlyRate ?? ""}
+              className="h-11"
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* LinkedIn */}
       <Card>

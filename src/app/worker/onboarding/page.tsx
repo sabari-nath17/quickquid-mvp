@@ -66,6 +66,9 @@ export default async function WorkerOnboardingPage() {
                 skills: profile.skills,
                 bio: profile.bio,
                 experienceText: profile.experienceText,
+                avatarUrl: profile.avatarUrl,
+                title: profile.title,
+                hourlyRate: profile.hourlyRate,
               }
             : null
         }

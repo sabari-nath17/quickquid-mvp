@@ -5,14 +5,19 @@ import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Users, Briefcase, ArrowRight, ShieldAlert } from "lucide-react";
+import { Plus, Users, Briefcase, ArrowRight, ShieldAlert, MessageCircle } from "lucide-react";
 
 export default async function ClientDashboardPage() {
   const session = await requireAuth().catch(() => redirect("/sign-in"));
   if (session.role !== "CLIENT") redirect("/");
 
-  const [jobCount, introductions] = await Promise.all([
-    prisma.jobRequirement.count({ where: { userId: session.id } }),
+  const [jobs, introductions] = await Promise.all([
+    prisma.jobRequirement.findMany({
+      where: { userId: session.id },
+      include: { _count: { select: { applications: true } } },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+    }),
     prisma.matchmakingConnection.findMany({
       where: {
         introducedAt: { not: null },
@@ -60,7 +65,7 @@ export default async function ClientDashboardPage() {
                 <Briefcase className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground font-heading">{jobCount}</p>
+                <p className="text-2xl font-bold text-foreground font-heading">{jobs.length}</p>
                 <p className="text-sm text-muted-foreground">Jobs Posted</p>
               </div>
             </div>
@@ -94,6 +99,68 @@ export default async function ClientDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Jobs with applicants */}
+      {jobs.some((j) => j._count.applications > 0) && (
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-foreground font-heading mb-4">Job Applications</h2>
+          <div className="space-y-2">
+            {jobs.filter((j) => j._count.applications > 0).map((job) => (
+              <Card key={job.id} className="border-border">
+                <CardContent className="pt-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">{job.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {job._count.applications} applicant{job._count.applications !== 1 ? "s" : ""}
+                      </p>
+                    </div>
+                    <Button variant="outline" size="sm" asChild className="shrink-0 gap-1">
+                      <Link href={`/client/jobs/${job.id}/applicants`}>
+                        <Users className="w-3 h-3" />
+                        Review
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Active contracts with chat links */}
+      {introductions.filter((c) => c.connectionStatus === "IN_PROGRESS").length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-foreground font-heading mb-4">Active Contracts</h2>
+          <div className="space-y-2">
+            {introductions.filter((c) => c.connectionStatus === "IN_PROGRESS").map((conn) => (
+              <Card key={conn.id} className="border-border">
+                <CardContent className="pt-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {conn.worker.user.name ?? "Worker"} — {conn.job.title}
+                      </p>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <Button variant="outline" size="sm" asChild className="gap-1">
+                        <Link href={`/messages/${conn.id}`}>
+                          <MessageCircle className="w-3 h-3" />
+                          Chat
+                        </Link>
+                      </Button>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/client/contract/${conn.id}`}>Contract →</Link>
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Recent introductions */}
       <div className="mb-10">

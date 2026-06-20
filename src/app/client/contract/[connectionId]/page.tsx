@@ -3,11 +3,12 @@ import Link from "next/link";
 import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, CheckCircle2, Clock, Star, User } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, Star, User, MessageCircle, Package } from "lucide-react";
 import { ComplianceTracker } from "@/components/shared/compliance-tracker";
 import { MilestoneTracker } from "@/components/shared/milestone-tracker";
 import { FeeTransparencyWidget } from "@/components/shared/fee-transparency-widget";
 import { ReviewForm } from "./review-form";
+import { SubmissionApproveButton } from "./submission-approve-button";
 
 export default async function ContractPage({
   params,
@@ -33,6 +34,7 @@ export default async function ContractPage({
         orderBy: { createdAt: "asc" },
       },
       review: true,
+      submissions: { orderBy: { createdAt: "desc" } },
     },
   });
 
@@ -88,12 +90,21 @@ export default async function ContractPage({
             )}
           </div>
         </div>
-        {connection.introducedBy?.name && (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <User className="w-3 h-3" />
-            Introduced by {connection.introducedBy.name}
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {connection.introducedBy?.name && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <User className="w-3 h-3" />
+              Introduced by {connection.introducedBy.name}
+            </div>
+          )}
+          <Link
+            href={`/messages/${connection.id}`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/20 text-primary text-xs font-medium hover:bg-primary/10 transition-colors"
+          >
+            <MessageCircle className="w-3.5 h-3.5" />
+            Chat
+          </Link>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -106,6 +117,58 @@ export default async function ContractPage({
               demoMode={demo === "compliance"}
             />
           </div>
+
+          {/* Work Submissions */}
+          {connection.submissions.length > 0 && (
+            <div>
+              <h2 className="text-base font-semibold text-foreground font-heading mb-3 flex items-center gap-2">
+                <Package className="w-4 h-4 text-primary" />
+                Work Submissions
+              </h2>
+              <div className="space-y-3">
+                {connection.submissions.map((sub) => (
+                  <div key={sub.id} className="bg-white rounded-xl border border-border p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground">{sub.title}</p>
+                        {sub.description && (
+                          <p className="text-xs text-muted-foreground mt-0.5">{sub.description}</p>
+                        )}
+                        {sub.isPreview && !sub.isApproved ? (
+                          <p className="text-xs text-amber-600 mt-1">
+                            Preview only — approve to reveal the full file link.
+                          </p>
+                        ) : sub.fileUrl ? (
+                          <a
+                            href={sub.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-primary hover:underline mt-1 block"
+                          >
+                            View file →
+                          </a>
+                        ) : null}
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          {new Date(sub.createdAt).toLocaleDateString("en-IN", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        {sub.isApproved ? (
+                          <span className="text-xs text-green-700 font-medium">Approved ✓</span>
+                        ) : (
+                          <SubmissionApproveButton submissionId={sub.id} />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Milestones */}
           <div>

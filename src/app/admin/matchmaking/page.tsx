@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle2, Link2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Link2, MessageCircle } from "lucide-react";
 import { MatchCreateForm } from "./match-create-form";
 import { IntroduceButton } from "./introduce-button";
 
@@ -188,9 +188,18 @@ export default async function MatchmakingPage() {
                             )}
                           </p>
                         </div>
-                        <Badge className="shrink-0 bg-green-100 text-green-700 border-green-200">
-                          Introduced
-                        </Badge>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <Link
+                            href={`/messages/${conn.id}`}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white border border-border text-xs text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors"
+                          >
+                            <MessageCircle className="w-3 h-3" />
+                            Monitor
+                          </Link>
+                          <Badge className="bg-green-100 text-green-700 border-green-200">
+                            Introduced
+                          </Badge>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

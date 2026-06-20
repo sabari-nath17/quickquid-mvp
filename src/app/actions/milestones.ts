@@ -22,6 +22,7 @@ export async function deliverMilestone(milestoneId: string) {
   });
 
   revalidatePath(`/worker/dashboard`);
+  revalidatePath(`/worker/contract/${milestone.connectionId}`);
   revalidatePath(`/client/contract/${milestone.connectionId}`);
   return { success: true };
 }
@@ -111,6 +112,7 @@ export async function startMilestone(milestoneId: string) {
   });
 
   revalidatePath(`/client/contract/${milestone.connectionId}`);
+  revalidatePath(`/worker/contract/${milestone.connectionId}`);
   revalidatePath(`/worker/dashboard`);
   return { success: true };
 }

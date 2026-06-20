@@ -19,6 +19,8 @@ import {
   Zap,
   Users,
   FlaskConical,
+  MessageCircle,
+  Briefcase,
 } from "lucide-react";
 
 const connectionStatusLabel: Record<string, { label: string; color: string }> = {
@@ -41,6 +43,11 @@ export default async function WorkerDashboardPage() {
           review: true,
         },
         orderBy: { createdAt: "desc" },
+      },
+      jobApplications: {
+        orderBy: { appliedAt: "desc" },
+        take: 5,
+        include: { job: true },
       },
     },
   });
@@ -73,18 +80,45 @@ export default async function WorkerDashboardPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
       <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground font-heading">
-            Welcome, {session.name?.split(" ")[0] ?? "there"}
-          </h1>
-          <p className="text-muted-foreground mt-1">Your QuickQuid worker dashboard</p>
+        <div className="flex items-center gap-4">
+          {profile?.avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={profile.avatarUrl}
+              alt={session.name ?? ""}
+              className="w-14 h-14 rounded-full object-cover border-2 border-border shrink-0"
+            />
+          ) : (
+            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold text-primary font-heading shrink-0">
+              {(session.name ?? session.email).slice(0, 2).toUpperCase()}
+            </div>
+          )}
+          <div>
+            <h1 className="text-3xl font-bold text-foreground font-heading">
+              Welcome, {session.name?.split(" ")[0] ?? "there"}
+            </h1>
+            {profile?.title && (
+              <p className="text-sm text-muted-foreground mt-0.5">{profile.title}</p>
+            )}
+            {!profile?.title && (
+              <p className="text-muted-foreground mt-0.5 text-sm">Your QuickQuid worker dashboard</p>
+            )}
+          </div>
         </div>
-        <Button asChild variant="outline" className="gap-2">
-          <Link href="/worker/onboarding">
-            <Pencil className="w-4 h-4" />
-            Edit Profile
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild size="sm" className="gap-2">
+            <Link href="/worker/jobs">
+              <Briefcase className="w-4 h-4" />
+              Find Jobs
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="gap-2">
+            <Link href="/worker/onboarding">
+              <Pencil className="w-4 h-4" />
+              Edit Profile
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Stats row */}
@@ -299,6 +333,40 @@ export default async function WorkerDashboardPage() {
         </Card>
       )}
 
+      {/* Recent Applications */}
+      {(profile?.jobApplications.length ?? 0) > 0 && (
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-foreground font-heading">Recent Applications</h2>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/worker/applications">View all →</Link>
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {profile!.jobApplications.map((app) => {
+              const statusColors = {
+                PENDING: "text-amber-600 border-amber-300 bg-amber-50",
+                SHORTLISTED: "text-blue-700 border-blue-300 bg-blue-50",
+                REJECTED: "text-red-600 border-red-200 bg-red-50",
+                HIRED: "text-green-700 border-green-300 bg-green-100",
+              };
+              return (
+                <Card key={app.id} className="border-border">
+                  <CardContent className="pt-3 pb-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-medium text-foreground truncate flex-1">{app.job.title}</p>
+                      <Badge variant="outline" className={`text-[10px] shrink-0 ${statusColors[app.status]}`}>
+                        {app.status.charAt(0) + app.status.slice(1).toLowerCase()}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Introductions */}
       {introductions.length > 0 && (
         <div>
@@ -328,6 +396,17 @@ export default async function WorkerDashboardPage() {
                         <Badge variant="outline" className={`text-xs ${statusInfo.color}`}>
                           {statusInfo.label}
                         </Badge>
+                        <div className="flex gap-1.5 mt-1">
+                          <Button asChild size="sm" variant="outline" className="h-7 text-xs gap-1">
+                            <Link href={`/messages/${conn.id}`}>
+                              <MessageCircle className="w-3 h-3" />
+                              Chat
+                            </Link>
+                          </Button>
+                          <Button asChild size="sm" variant="outline" className="h-7 text-xs">
+                            <Link href={`/worker/contract/${conn.id}`}>Contract →</Link>
+                          </Button>
+                        </div>
                       </div>
                     </div>
                     {conn.milestones.length > 0 && (
