@@ -63,6 +63,22 @@ enum JobApplicationStatus {
   HIRED
 }
 
+enum ServiceTierName {
+  BASIC
+  STANDARD
+  PREMIUM
+}
+
+enum ServiceOrderStatus {
+  PENDING
+  ACCEPTED
+  IN_PROGRESS
+  DELIVERED
+  COMPLETED
+  DECLINED
+  CANCELLED
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -78,6 +94,7 @@ model User {
   introducedConnections MatchmakingConnection[] @relation("IntroducedBy")
   squadMemberships      SquadMembership[]
   sentMessages          Message[]               @relation("SentMessages")
+  serviceOrders         ServiceOrder[]          @relation("ClientOrders")
 
   @@index([email])
   @@index([role])
@@ -116,6 +133,8 @@ model WorkerProfile {
   workSubmissions    WorkSubmission[]
   subJobsPosted      SubJob[]            @relation("PostedSubJobs")
   subJobApplications SubJobApplication[]
+  servicePackages    ServicePackage[]
+  serviceOrders      ServiceOrder[]      @relation("WorkerOrders")
 
   @@index([isVerified])
   @@index([status])
@@ -230,11 +249,12 @@ model MatchmakingConnection {
   contractStartDate  DateTime?
   createdAt          DateTime         @default(now())
 
-  milestones  Milestone[]
-  review      Review?
-  messages    Message[]
-  submissions WorkSubmission[]
-  subJobs     SubJob[]
+  milestones   Milestone[]
+  review       Review?
+  messages     Message[]
+  submissions  WorkSubmission[]
+  subJobs      SubJob[]
+  serviceOrder ServiceOrder?
 
   @@unique([workerId, jobId])
   @@index([workerId])
@@ -409,4 +429,66 @@ model SubJobApplication {
   @@unique([subJobId, workerId])
   @@index([subJobId])
   @@index([workerId])
+}
+
+model ServicePackage {
+  id            String        @id @default(cuid())
+  workerId      String
+  worker        WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  title         String
+  description   String
+  category      String
+  skills        String[]
+  coverImageUrl String?
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  tiers  ServiceTier[]
+  orders ServiceOrder[]
+
+  @@index([workerId])
+  @@index([category])
+  @@index([isActive])
+}
+
+model ServiceTier {
+  id           String          @id @default(cuid())
+  packageId    String
+  package      ServicePackage  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  name         ServiceTierName
+  price        Int
+  deliveryDays Int
+  revisions    Int             @default(1)
+  description  String?
+  features     String[]
+
+  orders ServiceOrder[]
+
+  @@unique([packageId, name])
+}
+
+model ServiceOrder {
+  id           String             @id @default(cuid())
+  packageId    String
+  tierId       String
+  clientId     String
+  workerId     String
+  status       ServiceOrderStatus @default(PENDING)
+  fastTrack    Boolean            @default(false)
+  fastTrackFee Int                @default(0)
+  requirements String?
+  connectionId String?            @unique
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  package    ServicePackage         @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  tier       ServiceTier            @relation(fields: [tierId], references: [id])
+  client     User                   @relation("ClientOrders", fields: [clientId], references: [id], onDelete: Cascade)
+  worker     WorkerProfile          @relation("WorkerOrders", fields: [workerId], references: [id], onDelete: Cascade)
+  connection MatchmakingConnection? @relation(fields: [connectionId], references: [id])
+
+  @@index([clientId])
+  @@index([workerId])
+  @@index([status])
 }

@@ -19,6 +19,8 @@ export async function Navbar() {
   const roleLinks: Record<string, { href: string; label: string }[]> = {
     CLIENT: [
       { href: "/client/dashboard", label: "Dashboard" },
+      { href: "/client/catalog", label: "Catalog" },
+      { href: "/client/orders", label: "Orders" },
       { href: "/client/board", label: "Merit Board" },
       { href: "/client/talent", label: "Browse Talent" },
       { href: "/client/post-job", label: "Post a Job" },
@@ -26,11 +28,11 @@ export async function Navbar() {
     WORKER: [
       { href: "/worker/dashboard", label: "Dashboard" },
       { href: "/worker/jobs", label: "Find Jobs" },
+      { href: "/worker/services", label: "My Services" },
       { href: "/worker/applications", label: "Applications" },
       { href: "/worker/network", label: "Network" },
-      { href: "/worker/onboarding", label: "My Profile" },
+      { href: "/worker/onboarding", label: "Profile" },
       { href: "/worker/sandbox", label: "Sandbox" },
-      { href: "/worker/squads", label: "Squads" },
     ],
     ADMIN: [
       { href: "/admin/dashboard", label: "Dashboard" },

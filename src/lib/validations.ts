@@ -84,6 +84,30 @@ export const workerProfileExtendedSchema = z.object({
   hourlyRate: z.coerce.number().int().min(0).max(1000000).optional(),
 });
 
+const serviceTierSchema = z.object({
+  name: z.enum(["BASIC", "STANDARD", "PREMIUM"]),
+  price: z.coerce.number().int().min(100, "Minimum tier price is ₹100").max(10000000),
+  deliveryDays: z.coerce.number().int().min(1, "Delivery must be at least 1 day").max(365),
+  revisions: z.coerce.number().int().min(0).max(99).default(1),
+  description: z.string().max(500).optional(),
+  features: z.array(z.string().min(1)).max(15).default([]),
+});
+
+export const servicePackageSchema = z.object({
+  title: z.string().min(10, "Title must be at least 10 characters").max(120),
+  description: z.string().min(30, "Description must be at least 30 characters").max(3000),
+  category: z.string().min(2, "Category is required").max(60),
+  skills: z.array(z.string().min(1)).min(1, "At least one skill").max(15),
+  coverImageUrl: z.string().url("Enter a valid image URL").optional().or(z.literal("")),
+  tiers: z.array(serviceTierSchema).min(1, "At least one pricing tier is required").max(3),
+});
+
+export const serviceOrderSchema = z.object({
+  tierId: z.string().min(1, "Select a tier"),
+  fastTrack: z.boolean().default(false),
+  requirements: z.string().max(2000).optional(),
+});
+
 export type SignUpInput = z.infer<typeof signUpSchema>;
 export type SignInInput = z.infer<typeof signInSchema>;
 export type WorkerProfileInput = z.infer<typeof workerProfileSchema>;
