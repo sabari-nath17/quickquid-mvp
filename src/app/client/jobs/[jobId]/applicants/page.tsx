@@ -197,6 +197,7 @@ export default async function JobApplicantsPage({
                   {app.status !== "HIRED" && (
                     <ApplicantActions
                       applicationId={app.id}
+                      jobId={jobId}
                       currentStatus={app.status}
                       workerVerified={app.worker.isVerified}
                     />

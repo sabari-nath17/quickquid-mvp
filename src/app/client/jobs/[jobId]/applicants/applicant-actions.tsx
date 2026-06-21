@@ -2,20 +2,20 @@
 
 import { useTransition, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { reviewApplication, hireApplicant } from "@/app/actions/applications";
-import { CheckCircle2, XCircle, Star } from "lucide-react";
+import { reviewApplication } from "@/app/actions/applications";
+import { CheckCircle2, XCircle, Star, Send } from "lucide-react";
 import Link from "next/link";
 
 interface ApplicantActionsProps {
   applicationId: string;
+  jobId: string;
   currentStatus: string;
   workerVerified: boolean;
 }
 
-export function ApplicantActions({ applicationId, currentStatus, workerVerified }: ApplicantActionsProps) {
+export function ApplicantActions({ applicationId, jobId, currentStatus, workerVerified }: ApplicantActionsProps) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [hiredConnectionId, setHiredConnectionId] = useState<string | null>(null);
 
   function handleReview(status: "SHORTLISTED" | "REJECTED") {
     setError(null);
@@ -23,30 +23,6 @@ export function ApplicantActions({ applicationId, currentStatus, workerVerified 
       const result = await reviewApplication(applicationId, status);
       if (result.error) setError(result.error);
     });
-  }
-
-  function handleHire() {
-    setError(null);
-    startTransition(async () => {
-      const result = await hireApplicant(applicationId);
-      if (result.error) {
-        setError(result.error);
-      } else if (result.connectionId) {
-        setHiredConnectionId(result.connectionId);
-      }
-    });
-  }
-
-  if (hiredConnectionId) {
-    return (
-      <Link
-        href={`/client/contract/${hiredConnectionId}`}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-100 text-green-700 text-sm font-medium border border-green-200 hover:bg-green-200 transition-colors"
-      >
-        <CheckCircle2 className="w-3.5 h-3.5" />
-        View Contract
-      </Link>
-    );
   }
 
   return (
@@ -78,16 +54,19 @@ export function ApplicantActions({ applicationId, currentStatus, workerVerified 
           </Button>
         )}
         {(currentStatus === "SHORTLISTED" || currentStatus === "PENDING") && (
-          <Button
-            size="sm"
-            onClick={handleHire}
-            disabled={isPending || !workerVerified}
-            className="gap-1"
-            title={!workerVerified ? "Worker must be verified to hire" : undefined}
-          >
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            Hire
-          </Button>
+          workerVerified ? (
+            <Button size="sm" asChild className="gap-1">
+              <Link href={`/client/jobs/${jobId}/applicants/${applicationId}/offer`}>
+                <Send className="w-3.5 h-3.5" />
+                Send Offer
+              </Link>
+            </Button>
+          ) : (
+            <Button size="sm" disabled className="gap-1" title="Worker must be verified to hire">
+              <Send className="w-3.5 h-3.5" />
+              Send Offer
+            </Button>
+          )
         )}
       </div>
       {!workerVerified && (currentStatus === "SHORTLISTED" || currentStatus === "PENDING") && (

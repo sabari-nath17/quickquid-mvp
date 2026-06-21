@@ -336,6 +336,10 @@ model MatchmakingConnection {
   introducedBy       User?            @relation("IntroducedBy", fields: [introducedById], references: [id])
   connectionStatus   ConnectionStatus @default(PENDING_CONTACT)
   contractStartDate  DateTime?
+  contractTitle      String?
+  rateType           RateType?
+  hourlyRate         Int?
+  weeklyLimit        Int?
   createdAt          DateTime         @default(now())
 
   milestones   Milestone[]

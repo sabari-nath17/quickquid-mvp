@@ -155,6 +155,96 @@ export async function hireApplicant(applicationId: string) {
   return { success: true, connectionId };
 }
 
+export async function sendOffer(
+  applicationId: string,
+  data: {
+    contractTitle: string;
+    description?: string;
+    rateType: "FIXED" | "HOURLY";
+    fixedAmount?: number;
+    hourlyRate?: number;
+    weeklyLimit?: number;
+    startDate?: string;
+    agreed: boolean;
+  }
+) {
+  const session = await requireAuth();
+  if (session.role !== "CLIENT" && session.role !== "ADMIN") return { error: "Not authorized" };
+
+  const { offerSchema } = await import("@/lib/validations");
+  const parsed = offerSchema.safeParse(data);
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
+  const t = parsed.data;
+
+  const application = await prisma.jobApplication.findUnique({
+    where: { id: applicationId },
+    include: { job: true, worker: true },
+  });
+  if (!application) return { error: "Application not found" };
+  if (session.role === "CLIENT" && application.job.userId !== session.id) return { error: "Not your job" };
+  if (!application.worker.isVerified) return { error: "This worker has not been verified yet" };
+
+  const initialAmount = t.rateType === "FIXED" ? t.fixedAmount! : t.hourlyRate! * t.weeklyLimit!;
+  const start = t.startDate ? new Date(t.startDate) : new Date();
+
+  const connectionId = await prisma.$transaction(async (tx) => {
+    const existing = await tx.matchmakingConnection.findUnique({
+      where: { workerId_jobId: { workerId: application.workerId, jobId: application.jobId } },
+    });
+
+    let connId: string;
+    if (existing) {
+      connId = existing.id;
+      await tx.matchmakingConnection.update({
+        where: { id: existing.id },
+        data: {
+          introducedAt: existing.introducedAt ?? new Date(),
+          isAnonymous: false,
+          connectionStatus: "IN_PROGRESS",
+          contractStartDate: start,
+          contractTitle: t.contractTitle,
+          rateType: t.rateType,
+          hourlyRate: t.rateType === "HOURLY" ? t.hourlyRate! : null,
+          weeklyLimit: t.rateType === "HOURLY" ? t.weeklyLimit! : null,
+        },
+      });
+    } else {
+      const conn = await tx.matchmakingConnection.create({
+        data: {
+          workerId: application.workerId,
+          jobId: application.jobId,
+          isAnonymous: false,
+          introducedAt: new Date(),
+          connectionStatus: "IN_PROGRESS",
+          contractStartDate: start,
+          contractTitle: t.contractTitle,
+          rateType: t.rateType,
+          hourlyRate: t.rateType === "HOURLY" ? t.hourlyRate! : null,
+          weeklyLimit: t.rateType === "HOURLY" ? t.weeklyLimit! : null,
+        },
+      });
+      connId = conn.id;
+    }
+
+    await tx.milestone.create({
+      data: {
+        connectionId: connId,
+        title: t.rateType === "HOURLY" ? "Week 1" : t.contractTitle,
+        description: t.description ?? null,
+        amount: initialAmount,
+        status: "IN_PROGRESS",
+      },
+    });
+
+    await tx.jobApplication.update({ where: { id: applicationId }, data: { status: "HIRED" } });
+    return connId;
+  });
+
+  revalidatePath(`/client/jobs/${application.jobId}/applicants`);
+  revalidatePath(`/client/dashboard`);
+  return { success: true, connectionId };
+}
+
 export async function applyToSubJob(subJobId: string, coverLetter: string) {
   const session = await requireAuth();
   if (session.role !== "WORKER") return { error: "Only workers can apply" };

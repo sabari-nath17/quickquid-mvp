@@ -115,6 +115,22 @@ export const messageSchema = z.object({
   content: z.string().min(1, "Message cannot be empty").max(5000, "Message too long"),
 });
 
+export const offerSchema = z
+  .object({
+    contractTitle: z.string().min(5, "Contract title must be at least 5 characters").max(120),
+    description: z.string().max(3000).optional(),
+    rateType: z.enum(["FIXED", "HOURLY"]),
+    fixedAmount: z.coerce.number().int().min(1).max(100000000).optional(),
+    hourlyRate: z.coerce.number().int().min(1).max(1000000).optional(),
+    weeklyLimit: z.coerce.number().int().min(1).max(168).optional(),
+    startDate: z.string().optional(),
+    agreed: z.literal(true, { error: "You must agree to the platform policies" }),
+  })
+  .refine((d) => (d.rateType === "FIXED" ? !!d.fixedAmount : !!d.hourlyRate && !!d.weeklyLimit), {
+    message: "Provide the contract amount (fixed) or hourly rate + weekly limit",
+    path: ["fixedAmount"],
+  });
+
 export const workSubmissionSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters").max(200),
   description: z.string().max(3000).optional(),
