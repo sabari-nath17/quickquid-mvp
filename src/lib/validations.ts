@@ -32,22 +32,36 @@ export const workerProfileSchema = z.object({
     .max(5000, "Experience text must be under 5000 characters"),
 });
 
-export const jobRequirementSchema = z.object({
-  title: z
-    .string()
-    .min(5, "Title must be at least 5 characters")
-    .max(100, "Title must be under 100 characters"),
-  description: z
-    .string()
-    .min(50, "Description must be at least 50 characters")
-    .max(5000, "Description must be under 5000 characters"),
-  skills: z
-    .array(z.string().min(1))
-    .min(1, "At least one required skill")
-    .max(15, "Maximum 15 skills"),
-  budget: z.string().max(100).optional(),
-  timeline: z.string().max(100).optional(),
-});
+// Platform wage floor — substandard (low-ball) postings are blocked before reaching worker feeds.
+export const WAGE_FLOOR = 500;
+
+export const jobRequirementSchema = z
+  .object({
+    title: z
+      .string()
+      .min(5, "Title must be at least 5 characters")
+      .max(100, "Title must be under 100 characters"),
+    description: z
+      .string()
+      .min(50, "Description must be at least 50 characters")
+      .max(5000, "Description must be under 5000 characters"),
+    skills: z
+      .array(z.string().min(1))
+      .min(1, "At least one required skill")
+      .max(15, "Maximum 15 skills"),
+    collarType: z.enum(["WHITE", "GREY", "BLUE"]).default("WHITE"),
+    budgetMin: z.coerce
+      .number()
+      .int()
+      .min(WAGE_FLOOR, `Budget must be at least ₹${WAGE_FLOOR} — sub-floor postings are not allowed`)
+      .max(100000000),
+    budgetMax: z.coerce.number().int().min(WAGE_FLOOR).max(100000000),
+    timeline: z.string().max(100).optional(),
+  })
+  .refine((d) => d.budgetMax >= d.budgetMin, {
+    message: "Maximum budget must be greater than or equal to minimum budget",
+    path: ["budgetMax"],
+  });
 
 export const workerApprovalSchema = z.object({
   status: z.enum(["VERIFIED", "REJECTED"]),
@@ -58,8 +72,15 @@ export const introduceConfirmSchema = z.object({
   confirmed: z.literal(true, { error: "You must confirm this action" }),
 });
 
+const subRating = z.number().int().min(1).max(5).optional();
+
 export const reviewSchema = z.object({
   rating: z.number().int().min(1).max(5),
+  qualityRating: subRating,
+  communicationRating: subRating,
+  professionalismRating: subRating,
+  reliabilityRating: subRating,
+  flexibilityRating: subRating,
   comment: z.string().max(1000).optional(),
 });
 

@@ -21,7 +21,9 @@ export async function submitJobRequirement(formData: FormData) {
     skills: skillsRaw
       ? skillsRaw.split(",").map((s) => s.trim()).filter(Boolean)
       : [],
-    budget: (formData.get("budget") as string) || undefined,
+    collarType: (formData.get("collarType") as string) || "WHITE",
+    budgetMin: formData.get("budgetMin") as string,
+    budgetMax: formData.get("budgetMax") as string,
     timeline: (formData.get("timeline") as string) || undefined,
   };
 
@@ -30,10 +32,16 @@ export async function submitJobRequirement(formData: FormData) {
     return { error: parsed.error.issues[0].message };
   }
 
+  const { budgetMin, budgetMax, collarType, ...rest } = parsed.data;
+
   await prisma.jobRequirement.create({
     data: {
       userId: session.id,
-      ...parsed.data,
+      ...rest,
+      collarType,
+      budgetMin,
+      budgetMax,
+      budget: `₹${budgetMin.toLocaleString("en-IN")}–₹${budgetMax.toLocaleString("en-IN")}`,
     },
   });
 

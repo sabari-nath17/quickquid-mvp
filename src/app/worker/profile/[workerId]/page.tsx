@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { getSession } from "@/lib/auth";
 import { Star, Globe, ExternalLink, CheckCircle2, Trophy, Clock } from "lucide-react";
+import { TierLadder } from "@/components/shared/tier-ladder";
 
 export default async function WorkerProfilePage({
   params,
@@ -18,6 +19,7 @@ export default async function WorkerProfilePage({
     include: {
       user: { select: { name: true, email: true, createdAt: true } },
       reviews: { orderBy: { createdAt: "desc" }, take: 10 },
+      connections: { include: { milestones: { select: { status: true } } } },
     },
   });
 
@@ -29,6 +31,28 @@ export default async function WorkerProfilePage({
     worker.reviews.length > 0
       ? worker.reviews.reduce((s, r) => s + r.rating, 0) / worker.reviews.length
       : null;
+
+  const completedContracts = worker.connections.filter((c) =>
+    c.milestones.some((m) => m.status === "APPROVED")
+  ).length;
+
+  // 5-parameter averages across reviews that supplied each sub-score
+  const subParams = [
+    { key: "qualityRating", label: "Quality" },
+    { key: "communicationRating", label: "Communication" },
+    { key: "professionalismRating", label: "Professionalism" },
+    { key: "reliabilityRating", label: "Reliability" },
+    { key: "flexibilityRating", label: "Flexibility" },
+  ] as const;
+  const subAverages: { label: string; avg: number }[] = [];
+  for (const p of subParams) {
+    const vals = worker.reviews
+      .map((r) => r[p.key])
+      .filter((v): v is number => typeof v === "number");
+    if (vals.length) {
+      subAverages.push({ label: p.label, avg: vals.reduce((sum, v) => sum + v, 0) / vals.length });
+    }
+  }
 
   const badgeConfig: Record<string, { label: string; className: string }> = {
     KYC_VERIFIED: { label: "KYC Verified", className: "bg-blue-50 text-blue-700 border-blue-200" },
@@ -62,6 +86,10 @@ export default async function WorkerProfilePage({
                   Verified
                 </Badge>
               )}
+              <TierLadder
+                inputs={{ completedContracts, avgRating, fillRate: worker.fillRate }}
+                compact
+              />
             </div>
             {worker.title && (
               <p className="text-base text-muted-foreground mb-2">{worker.title}</p>
@@ -164,6 +192,32 @@ export default async function WorkerProfilePage({
 
         {/* Sidebar */}
         <div className="space-y-4">
+          {/* Seller tier */}
+          <TierLadder inputs={{ completedContracts, avgRating, fillRate: worker.fillRate }} />
+
+          {/* 5-parameter rating breakdown */}
+          {subAverages.length > 0 && (
+            <div className="bg-white rounded-xl border border-border p-4">
+              <h3 className="text-sm font-semibold text-foreground font-heading mb-3">Rating Breakdown</h3>
+              <div className="space-y-2.5">
+                {subAverages.map((s) => (
+                  <div key={s.label}>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-muted-foreground">{s.label}</span>
+                      <span className="font-medium text-foreground">{s.avg.toFixed(1)}</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full bg-amber-400 rounded-full"
+                        style={{ width: `${(s.avg / 5) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Skills */}
           <div className="bg-white rounded-xl border border-border p-4">
             <h3 className="text-sm font-semibold text-foreground font-heading mb-3">Skills</h3>

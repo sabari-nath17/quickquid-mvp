@@ -22,6 +22,7 @@ import {
   MessageCircle,
   Briefcase,
 } from "lucide-react";
+import { TierLadder } from "@/components/shared/tier-ladder";
 
 const connectionStatusLabel: Record<string, { label: string; color: string }> = {
   PENDING_CONTACT: { label: "Pending Contact", color: "text-amber-600 border-amber-300 bg-amber-50" },
@@ -59,6 +60,9 @@ export default async function WorkerDashboardPage() {
     reviews.length > 0
       ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
       : null;
+
+  const completedContracts =
+    profile?.connections.filter((c) => c.milestones.some((m) => m.status === "APPROVED")).length ?? 0;
 
   const totalEarned = profile?.connections
     .flatMap((c) => c.milestones)
@@ -182,6 +186,15 @@ export default async function WorkerDashboardPage() {
               )}
             </CardContent>
           </Card>
+        </div>
+      )}
+
+      {/* Seller tier ladder */}
+      {profile && (
+        <div className="mb-8">
+          <TierLadder
+            inputs={{ completedContracts, avgRating, fillRate: profile.fillRate }}
+          />
         </div>
       )}
 

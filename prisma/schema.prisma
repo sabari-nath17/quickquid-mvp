@@ -79,6 +79,12 @@ enum ServiceOrderStatus {
   CANCELLED
 }
 
+enum CollarType {
+  WHITE
+  GREY
+  BLUE
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -216,6 +222,7 @@ model JobRequirement {
   budget       String?
   budgetMin    Int?
   budgetMax    Int?
+  collarType   CollarType   @default(WHITE)
   timeline     String?
   geofenceRing GeofenceRing @default(CLOUD)
   lat          Float?
@@ -342,6 +349,11 @@ model Review {
   connection   MatchmakingConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
   worker       WorkerProfile         @relation(fields: [workerId], references: [id], onDelete: Cascade)
   rating       Int
+  qualityRating         Int?
+  communicationRating   Int?
+  professionalismRating Int?
+  reliabilityRating     Int?
+  flexibilityRating     Int?
   comment      String?
   createdAt    DateTime              @default(now())
 

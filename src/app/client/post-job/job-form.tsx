@@ -70,14 +70,44 @@ export function JobForm() {
               className="h-11"
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="collarType">Work Type *</Label>
+            <select
+              id="collarType"
+              name="collarType"
+              defaultValue="WHITE"
+              className="w-full h-11 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="WHITE">White-collar — digital / knowledge work (dev, design, writing)</option>
+              <option value="GREY">Grey-collar — hybrid / field-tech (on-site setup, support)</option>
+              <option value="BLUE">Blue-collar — manual / shift work (events, logistics)</option>
+            </select>
+            <p className="text-xs text-muted-foreground">
+              Routes your post to the right talent feed and tailors how it&apos;s shown.
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="budget">Budget (optional)</Label>
+              <Label htmlFor="budgetMin">Min Budget ₹ *</Label>
               <Input
-                id="budget"
-                name="budget"
-                type="text"
-                placeholder="e.g., $500–$1000"
+                id="budgetMin"
+                name="budgetMin"
+                type="number"
+                min={500}
+                placeholder="5000"
+                required
+                className="h-11"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="budgetMax">Max Budget ₹ *</Label>
+              <Input
+                id="budgetMax"
+                name="budgetMax"
+                type="number"
+                min={500}
+                placeholder="10000"
+                required
                 className="h-11"
               />
             </div>
@@ -92,6 +122,9 @@ export function JobForm() {
               />
             </div>
           </div>
+          <p className="text-xs text-muted-foreground">
+            QuickQuid enforces a ₹500 wage floor. Below-floor postings are blocked to protect fair pay.
+          </p>
         </CardContent>
       </Card>
 
