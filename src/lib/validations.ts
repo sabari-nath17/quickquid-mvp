@@ -49,9 +49,16 @@ export const jobRequirementSchema = z
       .array(z.string().min(1))
       .min(1, "At least one required skill")
       .max(15, "Maximum 15 skills"),
+    category: z.string().max(60).optional(),
     collarType: z.enum(["WHITE", "GREY", "BLUE"]).default("WHITE"),
     paymentType: z.enum(["FIXED", "HOURLY"]).default("FIXED"),
     experienceLevel: z.enum(["ENTRY", "INTERMEDIATE", "EXPERT"]).default("INTERMEDIATE"),
+    weeklyHours: z.enum(["LESS_THAN_30", "THIRTY_PLUS", "TBD"]).default("TBD"),
+    durationType: z.enum(["LESS_THAN_1_MONTH", "ONE_TO_3_MONTHS", "THREE_TO_6_MONTHS", "MORE_THAN_6_MONTHS"]).optional(),
+    projectType: z.enum(["ONE_TIME", "ONGOING"]).default("ONE_TIME"),
+    niceToHaveSkills: z.array(z.string().min(1)).max(15).default([]),
+    preferredQualifications: z.string().max(2000).optional(),
+    freelancersNeeded: z.coerce.number().int().min(1).max(100).default(1),
     budgetMin: z.coerce
       .number()
       .int()

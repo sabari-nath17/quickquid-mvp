@@ -3,8 +3,11 @@ import Link from "next/link";
 import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, Clock, MapPin, Zap, Laptop, Wrench, HardHat } from "lucide-react";
+import { Briefcase, Clock, MapPin, Zap, Laptop, Wrench, HardHat, ShieldCheck, Users } from "lucide-react";
 import { ApplyButton } from "./apply-button";
+import { JobFilters } from "./job-filters";
+import { JOB_LABELS, formatPay, timeAgo } from "@/lib/client-stats";
+import type { Prisma } from "@prisma/client";
 
 const COLLAR_TABS = [
   { key: "ALL", label: "All Work", icon: Briefcase },
@@ -22,28 +25,43 @@ const COLLAR_META: Record<string, { label: string; accent: string; chip: string 
 export default async function WorkerJobsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ collar?: string }>;
+  searchParams: Promise<{ collar?: string; q?: string; exp?: string; type?: string; sort?: string }>;
 }) {
   const session = await requireAuth().catch(() => redirect("/sign-in"));
   if (session.role !== "WORKER") redirect("/");
 
-  const { collar } = await searchParams;
+  const { collar, q, exp, type, sort } = await searchParams;
   const activeCollar = collar && ["WHITE", "GREY", "BLUE"].includes(collar) ? collar : "ALL";
+  const keyword = (q ?? "").trim();
 
   const worker = await prisma.workerProfile.findUnique({
     where: { userId: session.id },
     include: { portfolioProjects: { select: { id: true, title: true }, orderBy: { createdAt: "desc" } } },
   });
 
+  const where: Prisma.JobRequirementWhereInput = { isSynthetic: false };
+  if (activeCollar !== "ALL") where.collarType = activeCollar as "WHITE" | "GREY" | "BLUE";
+  if (exp && ["ENTRY", "INTERMEDIATE", "EXPERT"].includes(exp)) where.experienceLevel = exp as "ENTRY" | "INTERMEDIATE" | "EXPERT";
+  if (type && ["FIXED", "HOURLY"].includes(type)) where.paymentType = type as "FIXED" | "HOURLY";
+  if (keyword) {
+    where.OR = [
+      { title: { contains: keyword, mode: "insensitive" } },
+      { description: { contains: keyword, mode: "insensitive" } },
+      { skills: { has: keyword } },
+      { category: { contains: keyword, mode: "insensitive" } },
+    ];
+  }
+
+  const orderBy: Prisma.JobRequirementOrderByWithRelationInput =
+    sort === "budget" ? { budgetMax: "desc" } : { createdAt: "desc" };
+
   const jobs = await prisma.jobRequirement.findMany({
-    where: {
-      isSynthetic: false,
-      ...(activeCollar !== "ALL" ? { collarType: activeCollar as "WHITE" | "GREY" | "BLUE" } : {}),
-    },
-    orderBy: { createdAt: "desc" },
+    where,
+    orderBy,
     take: 50,
     include: {
       _count: { select: { applications: true } },
+      user: { select: { country: true, paymentVerified: true } },
     },
   });
 
@@ -103,6 +121,11 @@ export default async function WorkerJobsPage({
         })}
       </div>
 
+      <JobFilters
+        activeCollar={activeCollar}
+        defaults={{ q: keyword, exp: exp ?? "", type: type ?? "", sort: sort ?? "" }}
+      />
+
       {jobs.length === 0 ? (
         <div className="text-center py-20 text-muted-foreground">
           <Briefcase className="w-10 h-10 mx-auto mb-3 opacity-30" />
@@ -126,21 +149,14 @@ export default async function WorkerJobsPage({
             const isFieldWork = job.collarType !== "WHITE";
 
             const metaRow = (
-              <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
-                {job.budget && (
-                  <span className="font-medium text-foreground">{job.budget}</span>
-                )}
-                {job.timeline && (
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {job.timeline}
-                  </span>
-                )}
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
-                  {job.geofenceRing.charAt(0) + job.geofenceRing.slice(1).toLowerCase()}
-                </span>
-                <span>{job._count.applications} applicant{job._count.applications !== 1 ? "s" : ""}</span>
+              <div className="flex items-center gap-x-4 gap-y-1 text-xs text-muted-foreground flex-wrap">
+                <span className="font-medium text-foreground">{formatPay(job)}</span>
+                <span>{JOB_LABELS.experienceLevel[job.experienceLevel]}</span>
+                {job.durationType && <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{JOB_LABELS.durationType[job.durationType]}</span>}
+                <span>{JOB_LABELS.weeklyHours[job.weeklyHours]}</span>
+                <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{job.geofenceRing.charAt(0) + job.geofenceRing.slice(1).toLowerCase()}</span>
+                <span className="flex items-center gap-1"><Users className="w-3 h-3" />{job._count.applications} proposal{job._count.applications !== 1 ? "s" : ""}</span>
+                {job.freelancersNeeded > 1 && <span>{job.freelancersNeeded} needed</span>}
               </div>
             );
 
@@ -170,9 +186,9 @@ export default async function WorkerJobsPage({
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <h2 className="text-base font-semibold text-foreground font-heading">
+                      <Link href={`/jobs/${job.id}`} className="text-base font-semibold text-foreground font-heading hover:text-primary transition-colors">
                         {job.title}
-                      </h2>
+                      </Link>
                       <Badge variant="outline" className={`text-[10px] ${collarMeta.chip}`}>
                         {collarMeta.label}
                       </Badge>
@@ -182,6 +198,13 @@ export default async function WorkerJobsPage({
                           {matchPct}% match
                         </Badge>
                       )}
+                    </div>
+                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground mb-2 flex-wrap">
+                      <span>Posted {timeAgo(new Date(job.createdAt))}</span>
+                      {job.user.paymentVerified && (
+                        <span className="inline-flex items-center gap-0.5 text-green-700"><ShieldCheck className="w-3 h-3" />Payment verified</span>
+                      )}
+                      {job.user.country && <span>· {job.user.country}</span>}
                     </div>
                     <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                       {job.description}

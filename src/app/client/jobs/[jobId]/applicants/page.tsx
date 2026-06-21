@@ -21,6 +21,12 @@ export default async function JobApplicantsPage({
   });
   if (!job || job.userId !== session.id) redirect("/client/dashboard");
 
+  // Track that the client viewed proposals (powers "Last viewed" in job activity)
+  await prisma.jobRequirement.update({
+    where: { id: jobId },
+    data: { lastViewedByClientAt: new Date() },
+  });
+
   const applications = await prisma.jobApplication.findMany({
     where: { jobId },
     include: {

@@ -14,6 +14,8 @@ export async function submitJobRequirement(formData: FormData) {
   }
 
   const skillsRaw = formData.get("skills") as string;
+  const niceToHaveRaw = formData.get("niceToHaveSkills") as string;
+  const durationRaw = (formData.get("durationType") as string) || "";
 
   const raw = {
     title: formData.get("title") as string,
@@ -21,9 +23,18 @@ export async function submitJobRequirement(formData: FormData) {
     skills: skillsRaw
       ? skillsRaw.split(",").map((s) => s.trim()).filter(Boolean)
       : [],
+    niceToHaveSkills: niceToHaveRaw
+      ? niceToHaveRaw.split(",").map((s) => s.trim()).filter(Boolean)
+      : [],
+    category: (formData.get("category") as string) || undefined,
     collarType: (formData.get("collarType") as string) || "WHITE",
     paymentType: (formData.get("paymentType") as string) || "FIXED",
     experienceLevel: (formData.get("experienceLevel") as string) || "INTERMEDIATE",
+    projectType: (formData.get("projectType") as string) || "ONE_TIME",
+    durationType: durationRaw || undefined,
+    weeklyHours: (formData.get("weeklyHours") as string) || "TBD",
+    freelancersNeeded: (formData.get("freelancersNeeded") as string) || "1",
+    preferredQualifications: (formData.get("preferredQualifications") as string) || undefined,
     budgetMin: formData.get("budgetMin") as string,
     budgetMax: formData.get("budgetMax") as string,
     timeline: (formData.get("timeline") as string) || undefined,
@@ -34,15 +45,12 @@ export async function submitJobRequirement(formData: FormData) {
     return { error: parsed.error.issues[0].message };
   }
 
-  const { budgetMin, budgetMax, collarType, paymentType, experienceLevel, ...rest } = parsed.data;
+  const { budgetMin, budgetMax, ...rest } = parsed.data;
 
   await prisma.jobRequirement.create({
     data: {
       userId: session.id,
       ...rest,
-      collarType,
-      paymentType,
-      experienceLevel,
       budgetMin,
       budgetMax,
       budget: `₹${budgetMin.toLocaleString("en-IN")}–₹${budgetMax.toLocaleString("en-IN")}`,

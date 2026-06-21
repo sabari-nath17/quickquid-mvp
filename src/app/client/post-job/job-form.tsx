@@ -59,16 +59,51 @@ export function JobForm() {
             />
             <p className="text-xs text-muted-foreground">Minimum 50 characters.</p>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="skills">Required Skills * (comma-separated)</Label>
-            <Input
-              id="skills"
-              name="skills"
-              type="text"
-              placeholder="React, TypeScript, Tailwind CSS..."
-              required
-              className="h-11"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="skills">Required Skills * (comma-separated)</Label>
+              <Input
+                id="skills"
+                name="skills"
+                type="text"
+                placeholder="React, TypeScript..."
+                required
+                className="h-11"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="niceToHaveSkills">Nice-to-have Skills</Label>
+              <Input
+                id="niceToHaveSkills"
+                name="niceToHaveSkills"
+                type="text"
+                placeholder="Figma, GraphQL..."
+                className="h-11"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <Input
+                id="category"
+                name="category"
+                type="text"
+                placeholder="e.g. Web Development"
+                className="h-11"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="freelancersNeeded">Freelancers needed</Label>
+              <Input
+                id="freelancersNeeded"
+                name="freelancersNeeded"
+                type="number"
+                min={1}
+                defaultValue={1}
+                className="h-11"
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="collarType">Work Type *</Label>
@@ -115,6 +150,33 @@ export function JobForm() {
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
+              <Label htmlFor="projectType">Project Type *</Label>
+              <select id="projectType" name="projectType" defaultValue="ONE_TIME" className="w-full h-11 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                <option value="ONE_TIME">One-time project</option>
+                <option value="ONGOING">Ongoing project</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="durationType">Estimated Duration</Label>
+              <select id="durationType" name="durationType" defaultValue="" className="w-full h-11 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                <option value="">Not sure</option>
+                <option value="LESS_THAN_1_MONTH">Less than 1 month</option>
+                <option value="ONE_TO_3_MONTHS">1 to 3 months</option>
+                <option value="THREE_TO_6_MONTHS">3 to 6 months</option>
+                <option value="MORE_THAN_6_MONTHS">More than 6 months</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="weeklyHours">Weekly Workload</Label>
+              <select id="weeklyHours" name="weeklyHours" defaultValue="TBD" className="w-full h-11 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                <option value="TBD">To be determined</option>
+                <option value="LESS_THAN_30">Less than 30 hrs/week</option>
+                <option value="THIRTY_PLUS">More than 30 hrs/week</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="budgetMin">{"Min Budget ₹ *"}</Label>
               <Input
                 id="budgetMin"
@@ -152,6 +214,15 @@ export function JobForm() {
           <p className="text-xs text-muted-foreground">
             QuickQuid enforces a ₹500 wage floor. Below-floor postings are blocked to protect fair pay.
           </p>
+          <div className="space-y-2">
+            <Label htmlFor="preferredQualifications">Preferred Qualifications (optional)</Label>
+            <Textarea
+              id="preferredQualifications"
+              name="preferredQualifications"
+              placeholder="Certifications, specific experience, portfolio expectations…"
+              rows={3}
+            />
+          </div>
         </CardContent>
       </Card>
 

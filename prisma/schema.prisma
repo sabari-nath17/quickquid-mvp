@@ -116,16 +116,37 @@ enum LanguageProficiency {
   NATIVE_OR_BILINGUAL
 }
 
+enum JobWeeklyHours {
+  LESS_THAN_30
+  THIRTY_PLUS
+  TBD
+}
+
+enum ProjectDuration {
+  LESS_THAN_1_MONTH
+  ONE_TO_3_MONTHS
+  THREE_TO_6_MONTHS
+  MORE_THAN_6_MONTHS
+}
+
+enum ProjectType {
+  ONE_TIME
+  ONGOING
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
   name         String?
   password     String
-  role         Role     @default(WORKER)
-  phone        String?
-  isSuspended  Boolean  @default(false)
-  referralCode String?  @unique @default(cuid())
-  referredById String?
+  role            Role     @default(WORKER)
+  phone           String?
+  country         String?
+  paymentVerified Boolean  @default(false)
+  phoneVerified   Boolean  @default(false)
+  isSuspended     Boolean  @default(false)
+  referralCode    String?  @unique @default(cuid())
+  referredById    String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -272,12 +293,20 @@ model JobRequirement {
   budget          String?
   budgetMin       Int?
   budgetMax       Int?
-  collarType      CollarType      @default(WHITE)
-  paymentType     RateType        @default(FIXED)
-  experienceLevel ExperienceLevel @default(INTERMEDIATE)
-  isSynthetic     Boolean         @default(false)
-  timeline        String?
-  geofenceRing    GeofenceRing    @default(CLOUD)
+  category                String?
+  collarType              CollarType       @default(WHITE)
+  paymentType             RateType         @default(FIXED)
+  experienceLevel         ExperienceLevel  @default(INTERMEDIATE)
+  weeklyHours             JobWeeklyHours   @default(TBD)
+  durationType            ProjectDuration?
+  projectType             ProjectType      @default(ONE_TIME)
+  niceToHaveSkills        String[]
+  preferredQualifications String?
+  freelancersNeeded       Int              @default(1)
+  lastViewedByClientAt    DateTime?
+  isSynthetic             Boolean          @default(false)
+  timeline                String?
+  geofenceRing            GeofenceRing     @default(CLOUD)
   lat          Float?
   lng          Float?
   isAiScoped   Boolean      @default(false)
