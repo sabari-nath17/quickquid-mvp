@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createServicePackage } from "@/app/actions/services";
 import { AlertCircle, Zap, Package as PackageIcon } from "lucide-react";
+import { ImageUpload } from "@/components/shared/image-upload";
 
 type TierName = "BASIC" | "STANDARD" | "PREMIUM";
 
@@ -145,14 +146,13 @@ export function PackageForm() {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="cover">Cover Image URL (optional)</Label>
-            <Input
-              id="cover"
-              type="url"
+            <Label>Cover Image (optional)</Label>
+            <ImageUpload
               value={coverImageUrl}
-              onChange={(e) => setCoverImageUrl(e.target.value)}
-              placeholder="https://example.com/cover.jpg"
-              className="h-11"
+              onChange={setCoverImageUrl}
+              bucket="packages"
+              shape="square"
+              label="Upload cover"
             />
           </div>
         </CardContent>

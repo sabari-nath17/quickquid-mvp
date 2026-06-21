@@ -3,7 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -83,6 +84,12 @@ enum CollarType {
   WHITE
   GREY
   BLUE
+}
+
+enum WorkerTier {
+  BASIC
+  PRO
+  ELITE
 }
 
 enum RateType {
@@ -194,6 +201,7 @@ model WorkerProfile {
   standbyStatus      StandbyStatus       @default(OFFLINE)
   fillRate           Float               @default(100)
   hoursTrained       Int                 @default(0)
+  tier               WorkerTier          @default(BASIC)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 

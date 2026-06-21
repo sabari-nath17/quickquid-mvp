@@ -8,7 +8,7 @@ import {
   Upload, Network, Star, Activity, MessageCircle,
 } from "lucide-react";
 import {
-  SuspendToggle, PackageVisibilityToggle, RemoveReviewButton, CancelOrderButton,
+  SuspendToggle, PackageVisibilityToggle, RemoveReviewButton, CancelOrderButton, MockDataPanel,
 } from "./oversight-actions";
 
 const tierLabel = (n: string) => n.charAt(0) + n.slice(1).toLowerCase();
@@ -119,6 +119,11 @@ export default async function AdminOversightPage() {
         <p className="text-muted-foreground mt-2">
           Full visibility and control over every action on QuickQuid — users, packages, orders, messages, submissions, and reviews.
         </p>
+      </div>
+
+      {/* Demo data toggle */}
+      <div className="mb-8">
+        <MockDataPanel />
       </div>
 
       {/* Stats */}

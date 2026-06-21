@@ -1,13 +1,14 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { submitWorkerProfile } from "@/app/actions/worker";
-import { Globe, FileText, User, AlertCircle, ImageIcon, Briefcase, MapPin } from "lucide-react";
+import { Globe, FileText, User, AlertCircle, ImageIcon, MapPin } from "lucide-react";
+import { ImageUpload } from "@/components/shared/image-upload";
 
 const selectClass =
   "w-full h-11 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
@@ -39,6 +40,7 @@ interface WorkerFormProps {
 
 export function WorkerForm({ existing }: WorkerFormProps) {
   const [state, formAction, isPending] = useActionState(WorkerProfileAction, null);
+  const [avatarUrl, setAvatarUrl] = useState(existing?.avatarUrl ?? "");
 
   return (
     <form action={formAction} className="space-y-6">
@@ -60,18 +62,15 @@ export function WorkerForm({ existing }: WorkerFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="avatarUrl">Profile Photo URL (optional)</Label>
-            <Input
-              id="avatarUrl"
-              name="avatarUrl"
-              type="url"
-              placeholder="https://example.com/your-photo.jpg"
-              defaultValue={existing?.avatarUrl ?? ""}
-              className="h-11"
+            <Label>Profile Photo</Label>
+            <input type="hidden" name="avatarUrl" value={avatarUrl} />
+            <ImageUpload
+              value={avatarUrl}
+              onChange={setAvatarUrl}
+              bucket="avatars"
+              shape="circle"
+              label="Upload photo"
             />
-            <p className="text-xs text-muted-foreground">
-              Paste a direct image URL. File upload coming soon.
-            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="title">Professional Headline (optional)</Label>

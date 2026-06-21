@@ -6,8 +6,10 @@ import {
   adminSetPackageVisibility,
   adminRemoveReview,
   adminCancelOrder,
+  seedDemoData,
+  clearDemoData,
 } from "@/app/actions/admin-oversight";
-import { Ban, ShieldCheck, EyeOff, Eye, Trash2, XCircle } from "lucide-react";
+import { Ban, ShieldCheck, EyeOff, Eye, Trash2, XCircle, Database, Eraser } from "lucide-react";
 
 function useAction() {
   const [isPending, startTransition] = useTransition();
@@ -94,5 +96,54 @@ export function CancelOrderButton({ orderId }: { orderId: string }) {
       </button>
       {error && <span className="text-[10px] text-destructive">{error}</span>}
     </span>
+  );
+}
+
+export function MockDataPanel() {
+  const [isPending, startTransition] = useTransition();
+  const [message, setMessage] = useState<string | null>(null);
+  const [isError, setIsError] = useState(false);
+
+  function run(fn: () => Promise<{ error?: string; message?: string; success?: boolean }>) {
+    setMessage(null);
+    setIsError(false);
+    startTransition(async () => {
+      const r = await fn();
+      if (r.error) { setMessage(r.error); setIsError(true); }
+      else if (r.message) { setMessage(r.message); setIsError(false); }
+    });
+  }
+
+  return (
+    <div className="bg-white rounded-xl border border-border p-5">
+      <div className="flex items-center gap-2 mb-1">
+        <Database className="w-4 h-4 text-primary" />
+        <h2 className="text-sm font-semibold text-foreground font-heading">Demo Data</h2>
+      </div>
+      <p className="text-xs text-muted-foreground mb-4">
+        Seed creates 4 workers, 1 client, 3 service packages, sandbox challenges, and 2 jobs. Clear removes all demo accounts and their data.
+      </p>
+      <div className="flex gap-3">
+        <button
+          onClick={() => run(seedDemoData)}
+          disabled={isPending}
+          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+        >
+          <Database className="w-3.5 h-3.5" />
+          {isPending ? "Working…" : "Load Demo Data"}
+        </button>
+        <button
+          onClick={() => run(clearDemoData)}
+          disabled={isPending}
+          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 text-xs font-medium transition-colors disabled:opacity-50"
+        >
+          <Eraser className="w-3.5 h-3.5" />
+          Clear Demo Data
+        </button>
+      </div>
+      {message && (
+        <p className={`text-xs mt-3 ${isError ? "text-destructive" : "text-green-700"}`}>{message}</p>
+      )}
+    </div>
   );
 }

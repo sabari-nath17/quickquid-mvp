@@ -49,7 +49,7 @@ async function main() {
   // Worker profiles
   const janeProfile = await prisma.workerProfile.upsert({
     where: { userId: jane.id },
-    update: {},
+    update: { tier: "PRO", isVerified: true, status: "VERIFIED" },
     create: {
       userId: jane.id,
       linkedinUrl: "https://linkedin.com/in/janesmith-dev",
@@ -64,12 +64,13 @@ async function main() {
       standbyStatus: "AVAILABLE",
       fillRate: 98.5,
       hoursTrained: 1200,
+      tier: "PRO",
     },
   });
 
   const arjunProfile = await prisma.workerProfile.upsert({
     where: { userId: arjun.id },
-    update: {},
+    update: { tier: "ELITE", isVerified: true, status: "VERIFIED" },
     create: {
       userId: arjun.id,
       linkedinUrl: "https://linkedin.com/in/arjunnair",
@@ -84,12 +85,13 @@ async function main() {
       standbyStatus: "AVAILABLE",
       fillRate: 100,
       hoursTrained: 900,
+      tier: "ELITE",
     },
   });
 
   const priyaProfile = await prisma.workerProfile.upsert({
     where: { userId: priya.id },
-    update: {},
+    update: { tier: "PRO", isVerified: true, status: "VERIFIED" },
     create: {
       userId: priya.id,
       linkedinUrl: "https://linkedin.com/in/priyamenon",
@@ -104,10 +106,11 @@ async function main() {
       standbyStatus: "BUSY",
       fillRate: 97.2,
       hoursTrained: 600,
+      tier: "PRO",
     },
   });
 
-  const kiranProfile = await prisma.workerProfile.upsert({
+  await prisma.workerProfile.upsert({
     where: { userId: kiran.id },
     update: {},
     create: {
@@ -124,6 +127,71 @@ async function main() {
       standbyStatus: "OFFLINE",
       fillRate: 100,
       hoursTrained: 0,
+      tier: "BASIC",
+    },
+  });
+
+  // Service packages for catalog demo
+  await prisma.servicePackage.upsert({
+    where: { id: "seed-pkg-jane-001" },
+    update: {},
+    create: {
+      id: "seed-pkg-jane-001",
+      workerId: janeProfile.id,
+      title: "Full-Stack React Dashboard",
+      description: "Custom analytics dashboard with charts, filters, API integrations, and responsive design. Production-ready code with full handoff.",
+      category: "Web Development",
+      skills: ["React", "TypeScript", "Node.js", "REST APIs"],
+      isActive: true,
+      tiers: {
+        create: [
+          { name: "BASIC", price: 15000, deliveryDays: 7, revisions: 1, description: "Single-page dashboard", features: ["3 chart types", "Static data", "Mobile-responsive", "Source code"] },
+          { name: "STANDARD", price: 35000, deliveryDays: 14, revisions: 2, description: "Multi-page with live data", features: ["8 chart types", "REST API integration", "Auth-protected routes", "Filters & search", "Deployment support"] },
+          { name: "PREMIUM", price: 75000, deliveryDays: 30, revisions: 5, description: "Full-featured SaaS product", features: ["Unlimited charts", "Real-time updates", "Role-based access", "CSV/PDF export", "3 months support"] },
+        ],
+      },
+    },
+  });
+
+  await prisma.servicePackage.upsert({
+    where: { id: "seed-pkg-arjun-001" },
+    update: {},
+    create: {
+      id: "seed-pkg-arjun-001",
+      workerId: arjunProfile.id,
+      title: "Brand Identity Design Package",
+      description: "Complete brand identity from logo to social kit. Strategic, distinctive, and ready for digital and print.",
+      category: "Design",
+      skills: ["Branding", "Figma", "Illustration", "Webflow"],
+      isActive: true,
+      tiers: {
+        create: [
+          { name: "BASIC", price: 8000, deliveryDays: 5, revisions: 2, description: "Logo + colour palette", features: ["3 logo concepts", "Colour palette", "PNG & SVG files"] },
+          { name: "STANDARD", price: 20000, deliveryDays: 10, revisions: 3, description: "Full brand kit", features: ["Logo + typography", "Business card", "Social media kit", "Brand guidelines PDF"] },
+          { name: "PREMIUM", price: 45000, deliveryDays: 21, revisions: 5, description: "Complete brand system", features: ["Everything in Standard", "Pitch deck template", "Merchandise mockups", "Webflow landing page"] },
+        ],
+      },
+    },
+  });
+
+  await prisma.servicePackage.upsert({
+    where: { id: "seed-pkg-priya-001" },
+    update: {},
+    create: {
+      id: "seed-pkg-priya-001",
+      workerId: priyaProfile.id,
+      title: "SEO Content Writing Service",
+      description: "Research-backed, conversion-focused content that ranks. Every piece optimised for E-E-A-T and your target audience.",
+      category: "Content Writing",
+      skills: ["SEO", "Copywriting", "Research", "Email Marketing"],
+      isActive: true,
+      tiers: {
+        create: [
+          { name: "BASIC", price: 3000, deliveryDays: 3, revisions: 1, description: "1 SEO article (1000 words)", features: ["Keyword research", "1 article", "Meta description", "1 revision"] },
+          { name: "STANDARD", price: 8000, deliveryDays: 7, revisions: 2, description: "4-article content pack", features: ["Content strategy", "4 articles (800–1200 words)", "Internal linking", "2 revisions each"] },
+          { name: "PREMIUM", price: 20000, deliveryDays: 14, revisions: 3, description: "Full content marketing sprint", features: ["10 articles", "Email sequence (5 emails)", "Social media captions", "Monthly content calendar"] },
+        ],
+      },
     },
   });
 

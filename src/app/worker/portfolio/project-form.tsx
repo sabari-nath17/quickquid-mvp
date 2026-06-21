@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createPortfolioProject } from "@/app/actions/portfolio";
 import { Plus } from "lucide-react";
+import { ImageUpload } from "@/components/shared/image-upload";
 
 export function ProjectForm() {
   const router = useRouter();
@@ -77,15 +78,19 @@ export function ProjectForm() {
           <Input id="p-skills" value={skills} onChange={(e) => setSkills(e.target.value)} placeholder="React, Figma" className="h-10" />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2">
-          <Label htmlFor="p-img">Image URL (optional)</Label>
-          <Input id="p-img" type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://…" className="h-10" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="p-url">Project URL (optional)</Label>
-          <Input id="p-url" type="url" value={projectUrl} onChange={(e) => setProjectUrl(e.target.value)} placeholder="https://…" className="h-10" />
-        </div>
+      <div className="space-y-2">
+        <Label>Project Image (optional)</Label>
+        <ImageUpload
+          value={imageUrl}
+          onChange={setImageUrl}
+          bucket="portfolios"
+          shape="square"
+          label="Upload image"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="p-url">Project URL (optional)</Label>
+        <Input id="p-url" type="url" value={projectUrl} onChange={(e) => setProjectUrl(e.target.value)} placeholder="https://…" className="h-10" />
       </div>
       {error && <p className="text-xs text-destructive">{error}</p>}
       <div className="flex gap-2">
