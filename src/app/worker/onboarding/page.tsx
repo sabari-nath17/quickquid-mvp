@@ -69,6 +69,12 @@ export default async function WorkerOnboardingPage() {
                 avatarUrl: profile.avatarUrl,
                 title: profile.title,
                 hourlyRate: profile.hourlyRate,
+                location: profile.location,
+                timezone: profile.timezone,
+                availabilityStatus: profile.availabilityStatus,
+                weeklyAvailability: profile.weeklyAvailability,
+                openToContractHire: profile.openToContractHire,
+                responseTime: profile.responseTime,
               }
             : null
         }

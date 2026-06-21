@@ -30,6 +30,7 @@ export async function Navbar() {
       { href: "/worker/jobs", label: "Find Jobs" },
       { href: "/worker/services", label: "My Services" },
       { href: "/worker/portfolio", label: "Portfolio" },
+      { href: "/worker/credentials", label: "Credentials" },
       { href: "/worker/applications", label: "Applications" },
       { href: "/worker/network", label: "Network" },
       { href: "/worker/referrals", label: "Refer" },
@@ -124,6 +125,7 @@ export async function Navbar() {
                     <DropdownMenuSeparator />
                     <form action={signOut}>
                       <DropdownMenuItem
+                        nativeButton
                         render={
                           <button
                             type="submit"

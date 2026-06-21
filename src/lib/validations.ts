@@ -119,6 +119,41 @@ export const workerProfileExtendedSchema = z.object({
   avatarUrl: z.string().url("Enter a valid URL").optional().or(z.literal("")),
   title: z.string().max(120, "Title must be under 120 characters").optional(),
   hourlyRate: z.coerce.number().int().min(0).max(1000000).optional(),
+  location: z.string().max(120).optional(),
+  timezone: z.string().max(60).optional(),
+  availabilityStatus: z.enum(["AVAILABLE_NOW", "OPEN_TO_OFFERS", "NOT_AVAILABLE"]).default("OPEN_TO_OFFERS"),
+  weeklyAvailability: z.enum(["AS_NEEDED", "LESS_THAN_30", "THIRTY_PLUS", "FULL_TIME"]).default("AS_NEEDED"),
+  openToContractHire: z.boolean().default(false),
+  responseTime: z.string().max(60).optional(),
+});
+
+export const employmentSchema = z.object({
+  title: z.string().min(2, "Job title is required").max(120),
+  company: z.string().min(2, "Company is required").max(120),
+  startDate: z.string().min(1, "Start date is required"),
+  endDate: z.string().optional(),
+  isCurrent: z.boolean().default(false),
+  description: z.string().max(2000).optional(),
+});
+
+export const educationSchema = z.object({
+  institution: z.string().min(2, "Institution is required").max(160),
+  degree: z.string().max(120).optional(),
+  fieldOfStudy: z.string().max(120).optional(),
+  startYear: z.coerce.number().int().min(1950).max(2100).optional(),
+  endYear: z.coerce.number().int().min(1950).max(2100).optional(),
+});
+
+export const certificationSchema = z.object({
+  name: z.string().min(2, "Certification name is required").max(160),
+  provider: z.string().min(2, "Provider is required").max(120),
+  issueYear: z.coerce.number().int().min(1950).max(2100).optional(),
+  credentialUrl: z.string().url("Enter a valid URL").optional().or(z.literal("")),
+});
+
+export const languageSchema = z.object({
+  name: z.string().min(2, "Language is required").max(60),
+  proficiency: z.enum(["BASIC", "CONVERSATIONAL", "FLUENT", "NATIVE_OR_BILINGUAL"]).default("CONVERSATIONAL"),
 });
 
 const serviceTierSchema = z.object({

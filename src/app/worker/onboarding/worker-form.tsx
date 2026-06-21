@@ -7,7 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { submitWorkerProfile } from "@/app/actions/worker";
-import { Globe, FileText, User, AlertCircle, ImageIcon, Briefcase } from "lucide-react";
+import { Globe, FileText, User, AlertCircle, ImageIcon, Briefcase, MapPin } from "lucide-react";
+
+const selectClass =
+  "w-full h-11 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
 
 type ActionState = { error?: string } | null;
 
@@ -25,6 +28,12 @@ interface WorkerFormProps {
     avatarUrl?: string | null;
     title?: string | null;
     hourlyRate?: number | null;
+    location?: string | null;
+    timezone?: string | null;
+    availabilityStatus?: string | null;
+    weeklyAvailability?: string | null;
+    openToContractHire?: boolean | null;
+    responseTime?: string | null;
   } | null;
 }
 
@@ -87,6 +96,86 @@ export function WorkerForm({ existing }: WorkerFormProps) {
               defaultValue={existing?.hourlyRate ?? ""}
               className="h-11"
             />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Availability & Location */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2 font-heading">
+            <MapPin className="w-4 h-4 text-primary" />
+            Availability &amp; Location
+          </CardTitle>
+          <CardDescription>Helps clients know where you are and how you work</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                name="location"
+                type="text"
+                placeholder="e.g. Kochi, India"
+                defaultValue={existing?.location ?? ""}
+                className="h-11"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="timezone">Time zone</Label>
+              <select id="timezone" name="timezone" defaultValue={existing?.timezone ?? "Asia/Kolkata"} className={selectClass}>
+                <option value="Asia/Kolkata">India (IST)</option>
+                <option value="Asia/Dubai">Gulf (GST)</option>
+                <option value="Europe/London">UK (GMT/BST)</option>
+                <option value="America/New_York">US Eastern</option>
+                <option value="America/Los_Angeles">US Pacific</option>
+                <option value="Asia/Singapore">Singapore</option>
+                <option value="Australia/Sydney">Australia (Sydney)</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="availabilityStatus">Availability</Label>
+              <select id="availabilityStatus" name="availabilityStatus" defaultValue={existing?.availabilityStatus ?? "OPEN_TO_OFFERS"} className={selectClass}>
+                <option value="AVAILABLE_NOW">Available now</option>
+                <option value="OPEN_TO_OFFERS">Open to offers</option>
+                <option value="NOT_AVAILABLE">Not available</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="weeklyAvailability">Hours per week</Label>
+              <select id="weeklyAvailability" name="weeklyAvailability" defaultValue={existing?.weeklyAvailability ?? "AS_NEEDED"} className={selectClass}>
+                <option value="AS_NEEDED">As needed — open to offers</option>
+                <option value="LESS_THAN_30">Less than 30 hrs/week</option>
+                <option value="THIRTY_PLUS">More than 30 hrs/week</option>
+                <option value="FULL_TIME">Full time (40 hrs/week)</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="responseTime">Typical response time</Label>
+              <select id="responseTime" name="responseTime" defaultValue={existing?.responseTime ?? "1-4 hours"} className={selectClass}>
+                <option value="Within 1 hour">Within 1 hour</option>
+                <option value="1-4 hours">1–4 hours</option>
+                <option value="4-8 hours">4–8 hours</option>
+                <option value="Within a day">Within a day</option>
+                <option value="A few days">A few days</option>
+              </select>
+            </div>
+            <div className="flex items-end pb-2">
+              <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="openToContractHire"
+                  defaultChecked={existing?.openToContractHire ?? false}
+                  className="w-4 h-4"
+                />
+                Open to contract-to-hire
+              </label>
+            </div>
           </div>
         </CardContent>
       </Card>

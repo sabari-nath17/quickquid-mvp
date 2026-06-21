@@ -96,6 +96,26 @@ enum ExperienceLevel {
   EXPERT
 }
 
+enum AvailabilityStatus {
+  AVAILABLE_NOW
+  OPEN_TO_OFFERS
+  NOT_AVAILABLE
+}
+
+enum WeeklyAvailability {
+  AS_NEEDED
+  LESS_THAN_30
+  THIRTY_PLUS
+  FULL_TIME
+}
+
+enum LanguageProficiency {
+  BASIC
+  CONVERSATIONAL
+  FLUENT
+  NATIVE_OR_BILINGUAL
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -135,6 +155,14 @@ model WorkerProfile {
   avatarUrl          String?
   title              String?
   hourlyRate         Int?
+  location           String?
+  timezone           String?
+  availabilityStatus AvailabilityStatus  @default(OPEN_TO_OFFERS)
+  weeklyAvailability WeeklyAvailability   @default(AS_NEEDED)
+  openToContractHire Boolean             @default(false)
+  responseTime       String?
+  idVerified         Boolean             @default(false)
+  phoneVerified      Boolean             @default(false)
   isVerified         Boolean             @default(false)
   status             ApplicationStatus   @default(PENDING)
   verificationNotes  String?
@@ -159,6 +187,10 @@ model WorkerProfile {
   servicePackages    ServicePackage[]
   serviceOrders      ServiceOrder[]      @relation("WorkerOrders")
   portfolioProjects  PortfolioProject[]
+  employmentHistory  EmploymentHistory[]
+  education          Education[]
+  certifications     Certification[]
+  languages          WorkerLanguage[]
 
   @@index([isVerified])
   @@index([status])
@@ -417,6 +449,59 @@ model PortfolioProject {
 
   applications JobApplication[] @relation("ApplicationAttachments")
 
+  @@index([workerId])
+}
+
+model EmploymentHistory {
+  id          String        @id @default(cuid())
+  workerId    String
+  worker      WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  title       String
+  company     String
+  startDate   DateTime
+  endDate     DateTime?
+  isCurrent   Boolean       @default(false)
+  description String?
+  createdAt   DateTime      @default(now())
+
+  @@index([workerId])
+}
+
+model Education {
+  id           String        @id @default(cuid())
+  workerId     String
+  worker       WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  institution  String
+  degree       String?
+  fieldOfStudy String?
+  startYear    Int?
+  endYear      Int?
+  createdAt    DateTime      @default(now())
+
+  @@index([workerId])
+}
+
+model Certification {
+  id            String        @id @default(cuid())
+  workerId      String
+  worker        WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  name          String
+  provider      String
+  issueYear     Int?
+  credentialUrl String?
+  createdAt     DateTime      @default(now())
+
+  @@index([workerId])
+}
+
+model WorkerLanguage {
+  id          String              @id @default(cuid())
+  workerId    String
+  worker      WorkerProfile       @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  name        String
+  proficiency LanguageProficiency @default(CONVERSATIONAL)
+
+  @@unique([workerId, name])
   @@index([workerId])
 }
 

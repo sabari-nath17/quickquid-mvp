@@ -41,6 +41,9 @@ export async function approveOrRejectWorker(
     data: {
       status: parsed.data.status,
       isVerified: isApproving,
+      // Admin approval implies the identity + phone were checked during review.
+      idVerified: isApproving,
+      phoneVerified: isApproving,
       verificationNotes: parsed.data.verificationNotes ?? null,
       ...badgeUpdate,
     },
