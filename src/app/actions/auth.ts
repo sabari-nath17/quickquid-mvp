@@ -76,6 +76,10 @@ export async function signIn(formData: FormData) {
     return { error: "Invalid email or password." };
   }
 
+  if (user.isSuspended) {
+    return { error: "This account has been suspended. Contact support@quickquid.com." };
+  }
+
   await createSession(user.id);
 
   if (user.role === "WORKER") redirect("/worker/dashboard");

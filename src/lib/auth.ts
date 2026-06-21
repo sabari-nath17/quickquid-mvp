@@ -42,10 +42,14 @@ export async function getSession(): Promise<SessionUser | null> {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, email: true, name: true, role: true },
+    select: { id: true, email: true, name: true, role: true, isSuspended: true },
   });
 
-  return user;
+  // Suspended accounts are treated as logged out everywhere immediately.
+  if (!user || user.isSuspended) return null;
+
+  const { isSuspended: _omit, ...sessionUser } = user;
+  return sessionUser;
 }
 
 export async function destroySession(): Promise<void> {

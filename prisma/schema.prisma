@@ -103,6 +103,7 @@ model User {
   password     String
   role         Role     @default(WORKER)
   phone        String?
+  isSuspended  Boolean  @default(false)
   referralCode String?  @unique @default(cuid())
   referredById String?
   createdAt    DateTime @default(now())

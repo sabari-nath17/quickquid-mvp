@@ -38,12 +38,13 @@ export async function Navbar() {
     ],
     ADMIN: [
       { href: "/admin/dashboard", label: "Dashboard" },
-      { href: "/admin/triage", label: "Triage Queue" },
+      { href: "/admin/oversight", label: "Oversight" },
+      { href: "/admin/triage", label: "Triage" },
       { href: "/admin/matchmaking", label: "Matchmaking" },
       { href: "/admin/applications", label: "Applications" },
       { href: "/admin/squads", label: "Squads" },
       { href: "/admin/standby", label: "Standby" },
-      { href: "/admin/jobs", label: "Job Stream" },
+      { href: "/admin/jobs", label: "Jobs" },
     ],
   };
 
