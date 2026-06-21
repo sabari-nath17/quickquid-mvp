@@ -20,6 +20,7 @@ export default async function WorkerProfilePage({
       user: { select: { name: true, email: true, createdAt: true } },
       reviews: { orderBy: { createdAt: "desc" }, take: 10 },
       connections: { include: { milestones: { select: { status: true } } } },
+      portfolioProjects: { orderBy: { createdAt: "desc" } },
     },
   });
 
@@ -150,6 +151,43 @@ export default async function WorkerProfilePage({
             <div className="bg-white rounded-xl border border-border p-5">
               <h2 className="text-sm font-semibold text-foreground font-heading mb-2">Experience</h2>
               <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{worker.experienceText}</p>
+            </div>
+          )}
+
+          {/* Portfolio */}
+          {worker.portfolioProjects.length > 0 && (
+            <div className="bg-white rounded-xl border border-border p-5">
+              <h2 className="text-sm font-semibold text-foreground font-heading mb-4">
+                Portfolio ({worker.portfolioProjects.length})
+              </h2>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {worker.portfolioProjects.map((p) => (
+                  <div key={p.id} className="rounded-xl border border-border overflow-hidden flex flex-col">
+                    {p.imageUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={p.imageUrl} alt={p.title} className="w-full aspect-[16/9] object-cover" />
+                    )}
+                    <div className="p-3 flex-1 flex flex-col">
+                      <p className="text-sm font-medium text-foreground">{p.title}</p>
+                      {p.role && <p className="text-[11px] text-primary">{p.role}</p>}
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{p.description}</p>
+                      {p.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {p.skills.map((s) => (
+                            <span key={s} className="px-1.5 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-medium">{s}</span>
+                          ))}
+                        </div>
+                      )}
+                      {p.projectUrl && (
+                        <a href={p.projectUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline mt-2">
+                          <ExternalLink className="w-3 h-3" />
+                          View project
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

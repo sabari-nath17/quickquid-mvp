@@ -85,6 +85,17 @@ enum CollarType {
   BLUE
 }
 
+enum RateType {
+  FIXED
+  HOURLY
+}
+
+enum ExperienceLevel {
+  ENTRY
+  INTERMEDIATE
+  EXPERT
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -146,6 +157,7 @@ model WorkerProfile {
   subJobApplications SubJobApplication[]
   servicePackages    ServicePackage[]
   serviceOrders      ServiceOrder[]      @relation("WorkerOrders")
+  portfolioProjects  PortfolioProject[]
 
   @@index([isVerified])
   @@index([status])
@@ -224,12 +236,15 @@ model JobRequirement {
   title        String
   description  String
   skills       String[]
-  budget       String?
-  budgetMin    Int?
-  budgetMax    Int?
-  collarType   CollarType   @default(WHITE)
-  timeline     String?
-  geofenceRing GeofenceRing @default(CLOUD)
+  budget          String?
+  budgetMin       Int?
+  budgetMax       Int?
+  collarType      CollarType      @default(WHITE)
+  paymentType     RateType        @default(FIXED)
+  experienceLevel ExperienceLevel @default(INTERMEDIATE)
+  isSynthetic     Boolean         @default(false)
+  timeline        String?
+  geofenceRing    GeofenceRing    @default(CLOUD)
   lat          Float?
   lng          Float?
   isAiScoped   Boolean      @default(false)
@@ -367,18 +382,40 @@ model Review {
 }
 
 model JobApplication {
-  id          String               @id @default(cuid())
-  jobId       String
-  workerId    String
-  coverLetter String?
-  status      JobApplicationStatus @default(PENDING)
-  appliedAt   DateTime             @default(now())
+  id                String               @id @default(cuid())
+  jobId             String
+  workerId          String
+  coverLetter       String?
+  rateType          RateType             @default(FIXED)
+  proposedRate      Int?
+  estimatedDays     Int?
+  availabilityHours Int?
+  status            JobApplicationStatus @default(PENDING)
+  appliedAt         DateTime             @default(now())
 
-  job    JobRequirement @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  worker WorkerProfile  @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  job         JobRequirement     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  worker      WorkerProfile      @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  attachments PortfolioProject[] @relation("ApplicationAttachments")
 
   @@unique([jobId, workerId])
   @@index([jobId])
+  @@index([workerId])
+}
+
+model PortfolioProject {
+  id          String   @id @default(cuid())
+  workerId    String
+  worker      WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  imageUrl    String?
+  projectUrl  String?
+  role        String?
+  skills      String[]
+  createdAt   DateTime @default(now())
+
+  applications JobApplication[] @relation("ApplicationAttachments")
+
   @@index([workerId])
 }
 

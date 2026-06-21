@@ -50,6 +50,8 @@ export const jobRequirementSchema = z
       .min(1, "At least one required skill")
       .max(15, "Maximum 15 skills"),
     collarType: z.enum(["WHITE", "GREY", "BLUE"]).default("WHITE"),
+    paymentType: z.enum(["FIXED", "HOURLY"]).default("FIXED"),
+    experienceLevel: z.enum(["ENTRY", "INTERMEDIATE", "EXPERT"]).default("INTERMEDIATE"),
     budgetMin: z.coerce
       .number()
       .int()
@@ -86,6 +88,20 @@ export const reviewSchema = z.object({
 
 export const jobApplicationSchema = z.object({
   coverLetter: z.string().max(2000).optional(),
+  rateType: z.enum(["FIXED", "HOURLY"]).default("FIXED"),
+  proposedRate: z.coerce.number().int().min(1).max(100000000).optional(),
+  estimatedDays: z.coerce.number().int().min(1).max(3650).optional(),
+  availabilityHours: z.coerce.number().int().min(1).max(168).optional(),
+  attachmentIds: z.array(z.string()).max(10).default([]),
+});
+
+export const portfolioProjectSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters").max(120),
+  description: z.string().min(10, "Description must be at least 10 characters").max(2000),
+  imageUrl: z.string().url("Enter a valid image URL").optional().or(z.literal("")),
+  projectUrl: z.string().url("Enter a valid project URL").optional().or(z.literal("")),
+  role: z.string().max(120).optional(),
+  skills: z.array(z.string().min(1)).max(15).default([]),
 });
 
 export const messageSchema = z.object({

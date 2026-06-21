@@ -86,9 +86,36 @@ export function JobForm() {
               Routes your post to the right talent feed and tailors how it&apos;s shown.
             </p>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="paymentType">Payment Type *</Label>
+              <select
+                id="paymentType"
+                name="paymentType"
+                defaultValue="FIXED"
+                className="w-full h-11 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="FIXED">Fixed price (per project)</option>
+                <option value="HOURLY">Hourly</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="experienceLevel">Experience Level *</Label>
+              <select
+                id="experienceLevel"
+                name="experienceLevel"
+                defaultValue="INTERMEDIATE"
+                className="w-full h-11 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="ENTRY">Entry — new talent welcome</option>
+                <option value="INTERMEDIATE">Intermediate</option>
+                <option value="EXPERT">Expert</option>
+              </select>
+            </div>
+          </div>
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="budgetMin">Min Budget ₹ *</Label>
+              <Label htmlFor="budgetMin">{"Min Budget ₹ *"}</Label>
               <Input
                 id="budgetMin"
                 name="budgetMin"

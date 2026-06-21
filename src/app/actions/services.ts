@@ -169,6 +169,7 @@ export async function respondToOrder(orderId: string, accept: boolean) {
         budgetMin: total,
         budgetMax: total,
         timeline: `${deliveryDays} day${deliveryDays !== 1 ? "s" : ""}`,
+        isSynthetic: true,
       },
     });
 

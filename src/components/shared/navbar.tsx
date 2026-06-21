@@ -29,6 +29,7 @@ export async function Navbar() {
       { href: "/worker/dashboard", label: "Dashboard" },
       { href: "/worker/jobs", label: "Find Jobs" },
       { href: "/worker/services", label: "My Services" },
+      { href: "/worker/portfolio", label: "Portfolio" },
       { href: "/worker/applications", label: "Applications" },
       { href: "/worker/network", label: "Network" },
       { href: "/worker/referrals", label: "Refer" },

@@ -5,7 +5,17 @@ import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { jobApplicationSchema } from "@/lib/validations";
 
-export async function applyToJob(jobId: string, coverLetter: string) {
+export async function applyToJob(
+  jobId: string,
+  data: {
+    coverLetter?: string;
+    rateType?: "FIXED" | "HOURLY";
+    proposedRate?: number;
+    estimatedDays?: number;
+    availabilityHours?: number;
+    attachmentIds?: string[];
+  }
+) {
   const session = await requireAuth();
   if (session.role !== "WORKER") return { error: "Only workers can apply to jobs" };
 
@@ -32,14 +42,34 @@ export async function applyToJob(jobId: string, coverLetter: string) {
   });
   if (existing) return { error: "You have already applied to this job" };
 
-  const parsed = jobApplicationSchema.safeParse({ coverLetter: coverLetter || undefined });
+  const parsed = jobApplicationSchema.safeParse({
+    coverLetter: data.coverLetter || undefined,
+    rateType: data.rateType ?? "FIXED",
+    proposedRate: data.proposedRate,
+    estimatedDays: data.estimatedDays,
+    availabilityHours: data.availabilityHours,
+    attachmentIds: data.attachmentIds ?? [],
+  });
   if (!parsed.success) return { error: parsed.error.issues[0].message };
+
+  // Only attach portfolio projects the worker actually owns
+  const ownedAttachments = parsed.data.attachmentIds.length
+    ? await prisma.portfolioProject.findMany({
+        where: { id: { in: parsed.data.attachmentIds }, workerId: worker.id },
+        select: { id: true },
+      })
+    : [];
 
   await prisma.jobApplication.create({
     data: {
       jobId,
       workerId: worker.id,
       coverLetter: parsed.data.coverLetter ?? null,
+      rateType: parsed.data.rateType,
+      proposedRate: parsed.data.proposedRate ?? null,
+      estimatedDays: parsed.data.estimatedDays ?? null,
+      availabilityHours: parsed.data.availabilityHours ?? null,
+      attachments: { connect: ownedAttachments.map((a) => ({ id: a.id })) },
     },
   });
 

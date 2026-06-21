@@ -27,6 +27,7 @@ export default async function JobApplicantsPage({
       worker: {
         include: { user: { select: { name: true, email: true } } },
       },
+      attachments: true,
     },
     orderBy: { appliedAt: "desc" },
   });
@@ -132,10 +133,57 @@ export default async function JobApplicantsPage({
                       <p className="text-xs text-primary font-medium mt-2">
                         {matchPct}% skill match ({matchingSkills.length}/{job.skills.length} skills)
                       </p>
+
+                      {/* Proposal terms */}
+                      {(app.proposedRate || app.estimatedDays || app.availabilityHours) && (
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs">
+                          {app.proposedRate != null && (
+                            <span className="font-semibold text-foreground">
+                              ₹{app.proposedRate.toLocaleString("en-IN")}
+                              {app.rateType === "HOURLY" ? "/hr" : " fixed"}
+                            </span>
+                          )}
+                          {app.estimatedDays != null && (
+                            <span className="text-muted-foreground">~{app.estimatedDays} days</span>
+                          )}
+                          {app.availabilityHours != null && (
+                            <span className="text-muted-foreground">{app.availabilityHours} hrs/wk</span>
+                          )}
+                        </div>
+                      )}
+
                       {app.coverLetter && (
                         <blockquote className="mt-2 pl-2 border-l-2 border-border text-xs text-muted-foreground italic line-clamp-3">
                           {app.coverLetter}
                         </blockquote>
+                      )}
+
+                      {/* Attached portfolio projects */}
+                      {app.attachments.length > 0 && (
+                        <div className="mt-2.5">
+                          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1">
+                            Attached work ({app.attachments.length})
+                          </p>
+                          <div className="grid sm:grid-cols-2 gap-2">
+                            {app.attachments.map((proj) => (
+                              <div key={proj.id} className="rounded-lg border border-border overflow-hidden bg-muted/20">
+                                {proj.imageUrl && (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img src={proj.imageUrl} alt={proj.title} className="w-full aspect-[16/9] object-cover" />
+                                )}
+                                <div className="p-2">
+                                  <p className="text-xs font-medium text-foreground line-clamp-1">{proj.title}</p>
+                                  {proj.role && <p className="text-[10px] text-primary">{proj.role}</p>}
+                                  {proj.projectUrl && (
+                                    <a href={proj.projectUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline">
+                                      View →
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       )}
                     </div>
                   </div>

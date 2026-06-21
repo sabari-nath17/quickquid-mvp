@@ -32,10 +32,14 @@ export default async function WorkerJobsPage({
 
   const worker = await prisma.workerProfile.findUnique({
     where: { userId: session.id },
+    include: { portfolioProjects: { select: { id: true, title: true }, orderBy: { createdAt: "desc" } } },
   });
 
   const jobs = await prisma.jobRequirement.findMany({
-    where: activeCollar !== "ALL" ? { collarType: activeCollar as "WHITE" | "GREY" | "BLUE" } : undefined,
+    where: {
+      isSynthetic: false,
+      ...(activeCollar !== "ALL" ? { collarType: activeCollar as "WHITE" | "GREY" | "BLUE" } : {}),
+    },
     orderBy: { createdAt: "desc" },
     take: 50,
     include: {
@@ -205,6 +209,10 @@ export default async function WorkerJobsPage({
                       <ApplyButton
                         jobId={job.id}
                         jobTitle={job.title}
+                        paymentType={job.paymentType}
+                        budgetMin={job.budgetMin}
+                        budgetMax={job.budgetMax}
+                        portfolio={worker?.portfolioProjects ?? []}
                         disabled={!worker?.isVerified || !hasMatch}
                         disabledReason={
                           !worker?.isVerified
