@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Users, Briefcase, ArrowRight, ShieldAlert, MessageCircle } from "lucide-react";
+import { BookBriefingCta } from "@/components/shared/book-briefing-cta";
+import { PromoBanner } from "@/components/shared/promo-banner";
 
 export default async function ClientDashboardPage() {
   const session = await requireAuth().catch(() => redirect("/sign-in"));
@@ -41,6 +43,8 @@ export default async function ClientDashboardPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
+      <BookBriefingCta />
+
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-foreground font-heading">
@@ -55,6 +59,13 @@ export default async function ClientDashboardPage() {
           </Link>
         </Button>
       </div>
+
+      <PromoBanner
+        id="client-catalog-2026"
+        message="New: order fixed-scope packages straight from the catalog — no bidding, no back-and-forth."
+        ctaLabel="Browse catalog"
+        ctaHref="/client/catalog"
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">

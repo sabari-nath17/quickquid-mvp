@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Navbar } from "@/components/shared/navbar";
 import { Toaster } from "@/components/ui/sonner";
@@ -7,6 +7,15 @@ export const metadata: Metadata = {
   title: "QuickQuid – Verified Freelance Talent for Growing Businesses",
   description:
     "Connect with vetted freelancers. QuickQuid's human-reviewed talent pool ensures quality and trust for every project.",
+  appleWebApp: {
+    capable: true,
+    title: "QuickQuid",
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#1d4ed8",
 };
 
 export default function RootLayout({

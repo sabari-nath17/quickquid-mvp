@@ -3,11 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { SignUpForm } from "./sign-up-form";
 
 interface SignUpPageProps {
-  searchParams: Promise<{ role?: string }>;
+  searchParams: Promise<{ role?: string; ref?: string }>;
 }
 
 export default async function SignUpPage({ searchParams }: SignUpPageProps) {
-  const { role } = await searchParams;
+  const { role, ref } = await searchParams;
   const defaultRole = role === "CLIENT" ? "CLIENT" : "WORKER";
 
   return (
@@ -27,7 +27,7 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
             <CardDescription>Join QuickQuid to get started</CardDescription>
           </CardHeader>
           <CardContent>
-            <SignUpForm defaultRole={defaultRole} />
+            <SignUpForm defaultRole={defaultRole} refCode={ref} />
           </CardContent>
         </Card>
       </div>

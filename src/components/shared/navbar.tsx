@@ -31,6 +31,7 @@ export async function Navbar() {
       { href: "/worker/services", label: "My Services" },
       { href: "/worker/applications", label: "Applications" },
       { href: "/worker/network", label: "Network" },
+      { href: "/worker/referrals", label: "Refer" },
       { href: "/worker/onboarding", label: "Profile" },
       { href: "/worker/sandbox", label: "Sandbox" },
     ],

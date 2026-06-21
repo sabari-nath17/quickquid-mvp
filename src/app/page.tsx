@@ -9,9 +9,13 @@ import {
   Zap,
   ArrowRight,
   Star,
+  GraduationCap,
+  Briefcase,
 } from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { TrustTicker } from "@/components/shared/trust-ticker";
+import { EarningsCalculator } from "@/components/shared/earnings-calculator";
 
 export default async function HomePage() {
   const session = await getSession();
@@ -23,34 +27,71 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-primary/10 py-24 lg:py-32">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center max-w-3xl mx-auto">
-            <Badge className="mb-6 gap-1.5 text-primary bg-primary/10 border-primary/20">
-              <Star className="w-3 h-3 fill-current" />
-              Human-Verified Freelance Talent
-            </Badge>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground font-heading leading-tight tracking-tight mb-6">
-              Trust-First Talent,{" "}
-              <span className="text-primary">Built for Business</span>
+      {/* Hero — Split-path Audience Router */}
+      <section className="relative overflow-hidden">
+        {/* Top bar: trust ticker */}
+        <div className="bg-gradient-to-b from-primary/5 to-transparent pt-8 pb-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center gap-4">
+            <TrustTicker />
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground font-heading leading-tight tracking-tight max-w-3xl">
+              One platform. <span className="text-primary">Two ways</span> to win.
             </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed">
-              QuickQuid connects growing businesses with rigorously vetted
-              freelancers. Every profile is manually reviewed by
-              our team before you ever see it.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button size="lg" asChild className="gap-2 text-base">
-                <Link href="/sign-up?role=CLIENT">
-                  Hire Talent
+          </div>
+        </div>
+
+        {/* Split viewport */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+          <div className="grid md:grid-cols-2 gap-px rounded-2xl overflow-hidden border border-border bg-border">
+            {/* Earn side */}
+            <div className="bg-white p-8 lg:p-10 flex flex-col group hover:bg-primary/[0.02] transition-colors">
+              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <GraduationCap className="w-6 h-6 text-primary" />
+              </div>
+              <span className="text-xs font-semibold text-primary uppercase tracking-wide mb-1">For Students &amp; Freelancers</span>
+              <h2 className="text-2xl font-bold text-foreground font-heading mb-2">Earn on your terms</h2>
+              <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+                Get verified once, then receive real client work — projects, packages, and field gigs near you.
+                Keep more of what you earn.
+              </p>
+              <div className="mb-6">
+                <EarningsCalculator />
+              </div>
+              <Button size="lg" asChild className="gap-2 mt-auto w-full sm:w-fit">
+                <Link href="/sign-up?role=WORKER">
+                  Start Earning
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="gap-2 text-base">
-                <Link href="/sign-up?role=WORKER">
-                  Apply as a Freelancer
+            </div>
+
+            {/* Hire side */}
+            <div className="bg-white p-8 lg:p-10 flex flex-col group hover:bg-primary/[0.02] transition-colors">
+              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <Briefcase className="w-6 h-6 text-primary" />
+              </div>
+              <span className="text-xs font-semibold text-primary uppercase tracking-wide mb-1">For Businesses</span>
+              <h2 className="text-2xl font-bold text-foreground font-heading mb-2">Hire vetted talent</h2>
+              <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+                Every freelancer is manually reviewed before you see them. Order a fixed-scope package
+                or post a job — we make the introduction.
+              </p>
+              <div className="space-y-3 mb-6">
+                {[
+                  "100% human-verified profiles",
+                  "Order from a fixed-price catalog",
+                  "Deliberate, admin-mediated introductions",
+                  "Pre-verified standby bench for continuity",
+                ].map((item) => (
+                  <div key={item} className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm text-foreground">{item}</span>
+                  </div>
+                ))}
+              </div>
+              <Button size="lg" asChild className="gap-2 mt-auto w-full sm:w-fit">
+                <Link href="/sign-up?role=CLIENT">
+                  Hire Talent
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
             </div>

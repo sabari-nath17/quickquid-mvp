@@ -14,11 +14,18 @@ function SignUpAction(_prev: ActionState, formData: FormData): Promise<ActionSta
   return signUp(formData) as Promise<ActionState>;
 }
 
-export function SignUpForm({ defaultRole }: { defaultRole: string }) {
+export function SignUpForm({ defaultRole, refCode }: { defaultRole: string; refCode?: string }) {
   const [state, formAction, isPending] = useActionState(SignUpAction, null);
 
   return (
     <form action={formAction} className="space-y-4">
+      {refCode && <input type="hidden" name="ref" value={refCode} />}
+      {refCode && (
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 text-primary text-sm">
+          <GraduationCap className="w-4 h-4 shrink-0" />
+          You were invited by a QuickQuid ambassador.
+        </div>
+      )}
       {state?.error && (
         <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
           <AlertCircle className="w-4 h-4 shrink-0" />

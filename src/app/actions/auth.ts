@@ -17,6 +17,7 @@ export async function signUp(formData: FormData) {
     password: formData.get("password") as string,
     role: formData.get("role") as string,
   };
+  const refCode = (formData.get("ref") as string)?.trim() || null;
 
   const parsed = signUpSchema.safeParse(raw);
   if (!parsed.success) {
@@ -30,9 +31,19 @@ export async function signUp(formData: FormData) {
     return { error: "An account with this email already exists." };
   }
 
+  // Campus-ambassador referral attribution
+  let referredById: string | null = null;
+  if (refCode) {
+    const referrer = await prisma.user.findUnique({
+      where: { referralCode: refCode },
+      select: { id: true },
+    });
+    referredById = referrer?.id ?? null;
+  }
+
   const hashed = await hashPassword(password);
   const user = await prisma.user.create({
-    data: { name, email, password: hashed, role },
+    data: { name, email, password: hashed, role, referredById },
   });
 
   await createSession(user.id);

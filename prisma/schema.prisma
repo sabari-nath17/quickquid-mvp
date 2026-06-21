@@ -86,14 +86,16 @@ enum CollarType {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
-  role      Role     @default(WORKER)
-  phone     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  password     String
+  role         Role     @default(WORKER)
+  phone        String?
+  referralCode String?  @unique @default(cuid())
+  referredById String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   workerProfile         WorkerProfile?
   jobRequirements       JobRequirement[]
@@ -101,9 +103,12 @@ model User {
   squadMemberships      SquadMembership[]
   sentMessages          Message[]               @relation("SentMessages")
   serviceOrders         ServiceOrder[]          @relation("ClientOrders")
+  referredBy            User?                   @relation("Referrals", fields: [referredById], references: [id])
+  referrals             User[]                  @relation("Referrals")
 
   @@index([email])
   @@index([role])
+  @@index([referredById])
 }
 
 model WorkerProfile {

@@ -23,6 +23,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import { TierLadder } from "@/components/shared/tier-ladder";
+import { PromoBanner } from "@/components/shared/promo-banner";
 
 const connectionStatusLabel: Record<string, { label: string; color: string }> = {
   PENDING_CONTACT: { label: "Pending Contact", color: "text-amber-600 border-amber-300 bg-amber-50" },
@@ -187,6 +188,15 @@ export default async function WorkerDashboardPage() {
             </CardContent>
           </Card>
         </div>
+      )}
+
+      {profile?.isVerified && (
+        <PromoBanner
+          id="worker-services-2026"
+          message="Turn your skills into a fixed-price package clients can order directly."
+          ctaLabel="Create a package"
+          ctaHref="/worker/services/new"
+        />
       )}
 
       {/* Seller tier ladder */}
