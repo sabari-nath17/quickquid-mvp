@@ -4,6 +4,10 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb",
+      allowedOrigins: [
+        "quickquid-mvp.vercel.app",
+        "localhost:3420",
+      ],
     },
   },
 };
