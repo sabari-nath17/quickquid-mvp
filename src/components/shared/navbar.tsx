@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getSession } from "@/lib/auth";
 import { signOut } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
@@ -57,9 +58,14 @@ export async function Navbar() {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-white font-bold text-sm font-heading">QQ</span>
-              </div>
+              <Image
+                src="/Blue.png"
+                alt="QuickQuid"
+                width={42}
+                height={36}
+                className="h-9 w-auto"
+                priority
+              />
               <span className="text-xl font-bold text-foreground font-heading">
                 QuickQuid
               </span>
