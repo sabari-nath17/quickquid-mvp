@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { VerificationBadge } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 export async function suspendUser(userId: string, suspend: boolean) {
@@ -69,6 +70,30 @@ const DEMO_IDS = {
   milestones: ["milestone-001", "milestone-002", "milestone-003"],
   offers: ["offer-001", "offer-002", "offer-003"],
   packages: ["seed-pkg-jane-001", "seed-pkg-arjun-001", "seed-pkg-priya-001"],
+  portfolios: {
+    jane: ["portfolio-jane-001", "portfolio-jane-002"],
+    arjun: ["portfolio-arjun-001", "portfolio-arjun-002"],
+    priya: ["portfolio-priya-001"],
+  },
+  employment: {
+    jane: ["emp-jane-001", "emp-jane-002"],
+    arjun: ["emp-arjun-001", "emp-arjun-002"],
+    priya: ["emp-priya-001"],
+  },
+  education: {
+    jane: ["edu-jane-001"],
+    arjun: ["edu-arjun-001"],
+    priya: ["edu-priya-001"],
+  },
+  certifications: {
+    jane: ["cert-jane-001", "cert-jane-002"],
+    arjun: ["cert-arjun-001"],
+  },
+  sandboxSubmissions: ["sandbox-jane-react", "sandbox-jane-design", "sandbox-jane-content"],
+  applications: ["app-jane-job1", "app-arjun-job2", "app-kiran-job1"],
+  subJob: "subjob-jane-001",
+  workSubmission: "submission-jane-001",
+  commissionLedger: "ledger-milestone-001",
 };
 
 export async function seedDemoData(): Promise<{ success?: boolean; error?: string; message?: string }> {
@@ -78,7 +103,7 @@ export async function seedDemoData(): Promise<{ success?: boolean; error?: strin
   const workerPass = await bcrypt.hash("worker123!", 12);
   const clientPass = await bcrypt.hash("client123!", 12);
 
-  // Users
+  // ── Users ──────────────────────────────────────────────────────────────────
   const jane = await prisma.user.upsert({
     where: { email: "jane@dev.com" },
     update: {},
@@ -96,8 +121,8 @@ export async function seedDemoData(): Promise<{ success?: boolean; error?: strin
   });
   const kiran = await prisma.user.upsert({
     where: { email: "kiran@mobile.com" },
-    update: {},
-    create: { email: "kiran@mobile.com", name: "Kiran Dev", password: workerPass, role: "WORKER" },
+    update: { referredById: jane.id },
+    create: { email: "kiran@mobile.com", name: "Kiran Dev", password: workerPass, role: "WORKER", referredById: jane.id },
   });
   const acme = await prisma.user.upsert({
     where: { email: "acme@company.com" },
@@ -105,55 +130,88 @@ export async function seedDemoData(): Promise<{ success?: boolean; error?: strin
     create: { email: "acme@company.com", name: "Acme Corp", password: clientPass, role: "CLIENT" },
   });
 
-  // Worker profiles with tiers
+  // ── Worker profiles (full fields) ─────────────────────────────────────────
+  const janeProfileData = {
+    linkedinUrl: "https://linkedin.com/in/janesmith-dev",
+    portfolioUrls: ["https://github.com/janesmith", "https://janesmith.dev"],
+    skills: ["React", "TypeScript", "Node.js", "UI/UX", "Figma", "REST APIs", "PostgreSQL", "Next.js"],
+    bio: "Full-stack developer with 4 years building clean, fast React applications for early-stage startups and scale-ups. I care about DX as much as UX.",
+    experienceText: "Led front-end at a SaaS startup (Series A) building a real-time analytics dashboard used by 200+ clients. Prior to that, freelanced for 2 years building REST APIs, mobile-first UIs, and internal tooling for SMBs in Kochi and Bengaluru.",
+    isVerified: true, status: "VERIFIED" as const,
+    verificationBadges: ["KYC_VERIFIED", "SKILL_VERIFIED"] as VerificationBadge[],
+    sandboxScore: 96, fillRate: 98.5, hoursTrained: 1200,
+    standbyStatus: "AVAILABLE" as const, tier: "PRO" as const,
+    title: "Full-Stack React & Node.js Developer",
+    hourlyRate: 1800,
+    location: "Kochi, Kerala",
+    timezone: "Asia/Kolkata",
+    availabilityStatus: "AVAILABLE_NOW" as const,
+    weeklyAvailability: "THIRTY_PLUS" as const,
+    openToContractHire: true,
+    responseTime: "within 2 hours",
+    idVerified: true,
+    phoneVerified: true,
+  };
   const janeProfile = await prisma.workerProfile.upsert({
     where: { userId: jane.id },
-    update: {},
-    create: {
-      userId: jane.id,
-      linkedinUrl: "https://linkedin.com/in/janesmith-dev",
-      portfolioUrls: ["https://github.com/janesmith", "https://janesmith.dev"],
-      skills: ["React", "TypeScript", "Node.js", "UI/UX", "Figma"],
-      bio: "Full-stack developer with a focus on clean, fast React apps.",
-      experienceText: "2 contracts at early-stage startups. Built SaaS dashboards, REST APIs, and mobile-first UIs.",
-      isVerified: true, status: "VERIFIED",
-      verificationBadges: ["KYC_VERIFIED", "SKILL_VERIFIED"],
-      sandboxScore: 96, fillRate: 98.5, hoursTrained: 1200,
-      standbyStatus: "AVAILABLE", tier: "PRO",
-    },
+    update: janeProfileData,
+    create: { userId: jane.id, ...janeProfileData },
   });
+
+  const arjunProfileData = {
+    linkedinUrl: "https://linkedin.com/in/arjunnair",
+    portfolioUrls: ["https://behance.net/arjun", "https://arjunnair.design"],
+    skills: ["UI/UX Design", "Figma", "Branding", "Illustration", "Webflow", "Motion Design", "Design Systems"],
+    bio: "Product designer who makes complex things feel simple. I've shipped design systems for 3 funded startups and a dozen freelance projects.",
+    experienceText: "3 years freelancing across brand identity, product design, and motion graphics. Clients include a healthtech startup (Bengaluru), a D2C food brand (Kochi), and multiple European agencies. I run a weekly design critique newsletter with 1,200 subscribers.",
+    isVerified: true, status: "VERIFIED" as const,
+    verificationBadges: ["KYC_VERIFIED", "SKILL_VERIFIED"] as VerificationBadge[],
+    sandboxScore: 91, fillRate: 100, hoursTrained: 900,
+    standbyStatus: "AVAILABLE" as const, tier: "ELITE" as const,
+    title: "Senior Product Designer & Brand Strategist",
+    hourlyRate: 2200,
+    location: "Kozhikode, Kerala",
+    timezone: "Asia/Kolkata",
+    availabilityStatus: "OPEN_TO_OFFERS" as const,
+    weeklyAvailability: "LESS_THAN_30" as const,
+    openToContractHire: false,
+    responseTime: "within 4 hours",
+    idVerified: true,
+    phoneVerified: true,
+  };
   const arjunProfile = await prisma.workerProfile.upsert({
     where: { userId: arjun.id },
-    update: {},
-    create: {
-      userId: arjun.id,
-      linkedinUrl: "https://linkedin.com/in/arjunnair",
-      portfolioUrls: ["https://behance.net/arjun"],
-      skills: ["UI/UX Design", "Figma", "Branding", "Illustration", "Webflow"],
-      bio: "Product designer who makes complex things feel simple.",
-      experienceText: "3 years freelancing in brand identity, product design, and motion graphics.",
-      isVerified: true, status: "VERIFIED",
-      verificationBadges: ["KYC_VERIFIED", "SKILL_VERIFIED"],
-      sandboxScore: 91, fillRate: 100, hoursTrained: 900,
-      standbyStatus: "AVAILABLE", tier: "ELITE",
-    },
+    update: arjunProfileData,
+    create: { userId: arjun.id, ...arjunProfileData },
   });
+
+  const priyaProfileData = {
+    linkedinUrl: "https://linkedin.com/in/priyamenon",
+    portfolioUrls: ["https://medium.com/@priya", "https://priyawrites.com"],
+    skills: ["Content Writing", "SEO", "Copywriting", "Email Marketing", "Research", "B2B SaaS", "Social Media"],
+    bio: "Content strategist who turns complex ideas into words that educate and convert. 5 years writing for SaaS, e-commerce, and B2B brands.",
+    experienceText: "Built content strategy for a B2B SaaS startup from 0 to 50K monthly organic visitors in 14 months. Managed a team of 3 writers. Also write email sequences, case studies, and product copy — anything long-form and conversion-focused.",
+    isVerified: true, status: "VERIFIED" as const,
+    verificationBadges: ["KYC_VERIFIED", "SQUAD_VOUCHED"] as VerificationBadge[],
+    sandboxScore: 88, fillRate: 97.2, hoursTrained: 600,
+    standbyStatus: "BUSY" as const, tier: "PRO" as const,
+    title: "B2B Content Strategist & SEO Writer",
+    hourlyRate: 1200,
+    location: "Thrissur, Kerala",
+    timezone: "Asia/Kolkata",
+    availabilityStatus: "OPEN_TO_OFFERS" as const,
+    weeklyAvailability: "AS_NEEDED" as const,
+    openToContractHire: false,
+    responseTime: "same day",
+    idVerified: true,
+    phoneVerified: false,
+  };
   const priyaProfile = await prisma.workerProfile.upsert({
     where: { userId: priya.id },
-    update: {},
-    create: {
-      userId: priya.id,
-      linkedinUrl: "https://linkedin.com/in/priyamenon",
-      portfolioUrls: ["https://medium.com/@priya"],
-      skills: ["Content Writing", "SEO", "Copywriting", "Email Marketing", "Research"],
-      bio: "Content strategist who turns ideas into words that convert.",
-      experienceText: "5 years writing for SaaS, e-commerce, and B2B brands.",
-      isVerified: true, status: "VERIFIED",
-      verificationBadges: ["KYC_VERIFIED", "SQUAD_VOUCHED"],
-      sandboxScore: 88, fillRate: 97.2, hoursTrained: 600,
-      standbyStatus: "BUSY", tier: "PRO",
-    },
+    update: priyaProfileData,
+    create: { userId: priya.id, ...priyaProfileData },
   });
+
   await prisma.workerProfile.upsert({
     where: { userId: kiran.id },
     update: {},
@@ -167,10 +225,13 @@ export async function seedDemoData(): Promise<{ success?: boolean; error?: strin
       isVerified: false, status: "PENDING",
       verificationBadges: [], fillRate: 100, hoursTrained: 0,
       standbyStatus: "OFFLINE", tier: "BASIC",
+      title: "Mobile App Developer (Flutter & React Native)",
+      location: "Kochi, Kerala",
+      timezone: "Asia/Kolkata",
     },
   });
 
-  // Service packages (for the catalog demo)
+  // ── Service packages ───────────────────────────────────────────────────────
   await prisma.servicePackage.upsert({
     where: { id: DEMO_IDS.packages[0] },
     update: {},
@@ -232,13 +293,12 @@ export async function seedDemoData(): Promise<{ success?: boolean; error?: strin
     },
   });
 
-  // Jobs
+  // ── Jobs ───────────────────────────────────────────────────────────────────
   const job1 = await prisma.jobRequirement.upsert({
     where: { id: DEMO_IDS.jobs[0] },
     update: {},
     create: {
-      id: DEMO_IDS.jobs[0],
-      userId: acme.id,
+      id: DEMO_IDS.jobs[0], userId: acme.id,
       title: "React Developer for Marketing Dashboard",
       description: "Build a marketing analytics dashboard with data visualisations and REST API integrations. 2–3 weeks part-time.",
       skills: ["React", "TypeScript", "REST APIs"],
@@ -246,12 +306,11 @@ export async function seedDemoData(): Promise<{ success?: boolean; error?: strin
       timeline: "2–3 weeks", geofenceRing: "CLOUD",
     },
   });
-  await prisma.jobRequirement.upsert({
+  const job2 = await prisma.jobRequirement.upsert({
     where: { id: DEMO_IDS.jobs[1] },
     update: {},
     create: {
-      id: DEMO_IDS.jobs[1],
-      userId: acme.id,
+      id: DEMO_IDS.jobs[1], userId: acme.id,
       title: "Brand Identity for Café Launch",
       description: "Logo, colour palette, menu design, and social kit for a new café in Kochi.",
       skills: ["Branding", "Figma", "Illustration"],
@@ -260,7 +319,7 @@ export async function seedDemoData(): Promise<{ success?: boolean; error?: strin
     },
   });
 
-  // Connection & milestones
+  // ── Connection (Jane → Job1, revealed) ────────────────────────────────────
   const conn = await prisma.matchmakingConnection.upsert({
     where: { workerId_jobId: { workerId: janeProfile.id, jobId: job1.id } },
     update: {},
@@ -274,6 +333,18 @@ export async function seedDemoData(): Promise<{ success?: boolean; error?: strin
     },
   });
 
+  // ── Blind connection (Arjun → Job2, for Merit Board demo) ─────────────────
+  const blindConn = await prisma.matchmakingConnection.upsert({
+    where: { workerId_jobId: { workerId: arjunProfile.id, jobId: job2.id } },
+    update: {},
+    create: {
+      workerId: arjunProfile.id, jobId: job2.id,
+      isAnonymous: true,
+    },
+  });
+  void blindConn;
+
+  // ── Milestones ─────────────────────────────────────────────────────────────
   await prisma.milestone.upsert({
     where: { id: DEMO_IDS.milestones[0] },
     update: {},
@@ -305,11 +376,367 @@ export async function seedDemoData(): Promise<{ success?: boolean; error?: strin
     },
   });
 
-  // Squad
+  // ── Commission ledger for approved milestone ───────────────────────────────
+  await prisma.commissionLedger.upsert({
+    where: { milestoneId: DEMO_IDS.milestones[0] },
+    update: {},
+    create: {
+      id: DEMO_IDS.commissionLedger,
+      milestoneId: DEMO_IDS.milestones[0],
+      grossAmount: 15000, platformFee: 1200, isPaid: true,
+      paidAt: new Date(Date.now() - 3 * 86400000),
+    },
+  });
+
+  // ── Work submission (shows in contract view) ───────────────────────────────
+  await prisma.workSubmission.upsert({
+    where: { id: DEMO_IDS.workSubmission },
+    update: {},
+    create: {
+      id: DEMO_IDS.workSubmission,
+      connectionId: conn.id, workerId: janeProfile.id,
+      title: "Dashboard wireframe — preview",
+      description: "First-pass layout. Full Figma file shared on approval.",
+      fileUrl: "https://figma.com/file/demo-link",
+      isPreview: true, isApproved: true,
+    },
+  });
+
+  // ── Messages in the Jane–Acme thread ──────────────────────────────────────
+  const existingMsgs = await prisma.message.count({ where: { connectionId: conn.id } });
+  if (existingMsgs === 0) {
+    await prisma.message.createMany({
+      data: [
+        { connectionId: conn.id, senderId: acme.id, content: "Hi Jane! Really excited to get started on this dashboard project. The brief looks great.", createdAt: new Date(Date.now() - 4 * 86400000) },
+        { connectionId: conn.id, senderId: jane.id, content: "Thanks Acme! I've reviewed the requirements — I'll start with the data models and API schema today. Should have a Figma wireframe to you by tomorrow.", createdAt: new Date(Date.now() - 4 * 86400000 + 600000) },
+        { connectionId: conn.id, senderId: acme.id, content: "Perfect. Can we include a date-range filter on the main chart?", createdAt: new Date(Date.now() - 3 * 86400000) },
+        { connectionId: conn.id, senderId: jane.id, content: "Absolutely — date range filter, team filter, and a CSV export are all in scope for the Standard milestone. I'll include it in the wireframe.", createdAt: new Date(Date.now() - 3 * 86400000 + 300000) },
+        { connectionId: conn.id, senderId: jane.id, content: "Wireframe is ready — I've shared a preview submission above. Let me know if you'd like any layout changes before I move to code.", createdAt: new Date(Date.now() - 2 * 86400000) },
+        { connectionId: conn.id, senderId: acme.id, content: "Looks clean! Approved. Go ahead and start building 🚀", createdAt: new Date(Date.now() - 2 * 86400000 + 1800000) },
+      ],
+    });
+  }
+
+  // ── Portfolio projects ─────────────────────────────────────────────────────
+  await prisma.portfolioProject.upsert({
+    where: { id: DEMO_IDS.portfolios.jane[0] },
+    update: {},
+    create: {
+      id: DEMO_IDS.portfolios.jane[0],
+      workerId: janeProfile.id,
+      title: "Acme Analytics Dashboard",
+      description: "Real-time marketing analytics platform built with Next.js and Recharts. Includes date-range filters, CSV export, team-based access control, and REST API integrations with HubSpot and Google Analytics.",
+      role: "Lead Developer",
+      skills: ["React", "TypeScript", "Node.js", "PostgreSQL", "Recharts"],
+      projectUrl: "https://github.com/janesmith/acme-dashboard",
+    },
+  });
+  await prisma.portfolioProject.upsert({
+    where: { id: DEMO_IDS.portfolios.jane[1] },
+    update: {},
+    create: {
+      id: DEMO_IDS.portfolios.jane[1],
+      workerId: janeProfile.id,
+      title: "LMS Mobile App (React Native)",
+      description: "Learning management system for a Kerala-based ed-tech startup. Features video streaming, quiz engine, progress tracking, and offline mode.",
+      role: "Full-Stack Developer",
+      skills: ["React Native", "Node.js", "Firebase", "TypeScript"],
+      projectUrl: "https://github.com/janesmith/lms-app",
+    },
+  });
+  await prisma.portfolioProject.upsert({
+    where: { id: DEMO_IDS.portfolios.arjun[0] },
+    update: {},
+    create: {
+      id: DEMO_IDS.portfolios.arjun[0],
+      workerId: arjunProfile.id,
+      title: "MedFlow — Healthcare App Design",
+      description: "End-to-end product design for a telemedicine app. Covers patient onboarding, appointment booking, video consult UI, and a doctor-side dashboard. Design system in Figma with 300+ components.",
+      role: "Lead Designer",
+      skills: ["Figma", "UI/UX Design", "Design Systems", "Prototyping"],
+      projectUrl: "https://behance.net/arjun/medflow",
+    },
+  });
+  await prisma.portfolioProject.upsert({
+    where: { id: DEMO_IDS.portfolios.arjun[1] },
+    update: {},
+    create: {
+      id: DEMO_IDS.portfolios.arjun[1],
+      workerId: arjunProfile.id,
+      title: "Bloom — D2C Brand Identity",
+      description: "Full brand identity for a Kochi-based organic food startup. Logo, typography, packaging design, social media templates, and Webflow marketing site.",
+      role: "Brand Designer",
+      skills: ["Branding", "Illustration", "Webflow", "Figma"],
+      projectUrl: "https://behance.net/arjun/bloom",
+    },
+  });
+  await prisma.portfolioProject.upsert({
+    where: { id: DEMO_IDS.portfolios.priya[0] },
+    update: {},
+    create: {
+      id: DEMO_IDS.portfolios.priya[0],
+      workerId: priyaProfile.id,
+      title: "SaaS SEO Content Programme",
+      description: "Built and executed a 6-month content strategy for a B2B SaaS startup, growing organic traffic from 3K to 53K monthly visitors. Includes keyword clusters, pillar pages, and a link-building playbook.",
+      role: "Content Strategist",
+      skills: ["SEO", "Content Writing", "Research", "B2B SaaS"],
+      projectUrl: "https://medium.com/@priya/saas-seo-case-study",
+    },
+  });
+
+  // ── Employment history ─────────────────────────────────────────────────────
+  await prisma.employmentHistory.upsert({
+    where: { id: DEMO_IDS.employment.jane[0] },
+    update: {},
+    create: {
+      id: DEMO_IDS.employment.jane[0], workerId: janeProfile.id,
+      title: "Senior Frontend Engineer", company: "Sprintly (Series A SaaS)",
+      startDate: new Date("2022-06-01"), endDate: new Date("2024-01-31"), isCurrent: false,
+      description: "Led front-end development of a real-time project management tool. Migrated legacy jQuery codebase to React 18 with TypeScript. Reduced bundle size by 42%.",
+    },
+  });
+  await prisma.employmentHistory.upsert({
+    where: { id: DEMO_IDS.employment.jane[1] },
+    update: {},
+    create: {
+      id: DEMO_IDS.employment.jane[1], workerId: janeProfile.id,
+      title: "Freelance Web Developer", company: "Self-employed",
+      startDate: new Date("2024-02-01"), isCurrent: true,
+      description: "Building dashboards, REST APIs, and mobile-first UIs for SMBs across India. 12+ projects delivered.",
+    },
+  });
+  await prisma.employmentHistory.upsert({
+    where: { id: DEMO_IDS.employment.arjun[0] },
+    update: {},
+    create: {
+      id: DEMO_IDS.employment.arjun[0], workerId: arjunProfile.id,
+      title: "Product Designer", company: "Healthify (Healthtech Startup)",
+      startDate: new Date("2021-03-01"), endDate: new Date("2023-08-31"), isCurrent: false,
+      description: "Designed core patient-facing flows for a telemedicine app with 100K+ users. Owned the design system (Figma) used across Android, iOS, and web.",
+    },
+  });
+  await prisma.employmentHistory.upsert({
+    where: { id: DEMO_IDS.employment.arjun[1] },
+    update: {},
+    create: {
+      id: DEMO_IDS.employment.arjun[1], workerId: arjunProfile.id,
+      title: "Freelance Brand Designer", company: "Self-employed",
+      startDate: new Date("2023-09-01"), isCurrent: true,
+      description: "Brand identity, product design, and motion graphics for startups and agencies. Clients across India, UK, and Germany.",
+    },
+  });
+  await prisma.employmentHistory.upsert({
+    where: { id: DEMO_IDS.employment.priya[0] },
+    update: {},
+    create: {
+      id: DEMO_IDS.employment.priya[0], workerId: priyaProfile.id,
+      title: "Content Strategist", company: "CloudDesk (B2B SaaS)",
+      startDate: new Date("2020-01-01"), isCurrent: true,
+      description: "Built content strategy from scratch. Grew organic blog traffic from 3K to 53K/month in 14 months. Managed a team of 3 writers and a freelance network.",
+    },
+  });
+
+  // ── Education ──────────────────────────────────────────────────────────────
+  await prisma.education.upsert({
+    where: { id: DEMO_IDS.education.jane[0] },
+    update: {},
+    create: {
+      id: DEMO_IDS.education.jane[0], workerId: janeProfile.id,
+      institution: "College of Engineering, Trivandrum",
+      degree: "B.Tech", fieldOfStudy: "Computer Science & Engineering",
+      startYear: 2018, endYear: 2022,
+    },
+  });
+  await prisma.education.upsert({
+    where: { id: DEMO_IDS.education.arjun[0] },
+    update: {},
+    create: {
+      id: DEMO_IDS.education.arjun[0], workerId: arjunProfile.id,
+      institution: "National Institute of Design, Ahmedabad",
+      degree: "B.Des", fieldOfStudy: "Communication Design",
+      startYear: 2017, endYear: 2021,
+    },
+  });
+  await prisma.education.upsert({
+    where: { id: DEMO_IDS.education.priya[0] },
+    update: {},
+    create: {
+      id: DEMO_IDS.education.priya[0], workerId: priyaProfile.id,
+      institution: "Christ University, Bengaluru",
+      degree: "BA", fieldOfStudy: "English Literature & Journalism",
+      startYear: 2016, endYear: 2019,
+    },
+  });
+
+  // ── Certifications ─────────────────────────────────────────────────────────
+  await prisma.certification.upsert({
+    where: { id: DEMO_IDS.certifications.jane[0] },
+    update: {},
+    create: {
+      id: DEMO_IDS.certifications.jane[0], workerId: janeProfile.id,
+      name: "AWS Certified Developer – Associate",
+      provider: "Amazon Web Services", issueYear: 2023,
+      credentialUrl: "https://aws.amazon.com/certification/certified-developer-associate/",
+    },
+  });
+  await prisma.certification.upsert({
+    where: { id: DEMO_IDS.certifications.jane[1] },
+    update: {},
+    create: {
+      id: DEMO_IDS.certifications.jane[1], workerId: janeProfile.id,
+      name: "Meta Front-End Developer Professional Certificate",
+      provider: "Coursera / Meta", issueYear: 2022,
+      credentialUrl: "https://coursera.org/professional-certificates/meta-front-end-developer",
+    },
+  });
+  await prisma.certification.upsert({
+    where: { id: DEMO_IDS.certifications.arjun[0] },
+    update: {},
+    create: {
+      id: DEMO_IDS.certifications.arjun[0], workerId: arjunProfile.id,
+      name: "Google UX Design Certificate",
+      provider: "Coursera / Google", issueYear: 2021,
+      credentialUrl: "https://grow.google/certificates/ux-design/",
+    },
+  });
+
+  // ── Languages ──────────────────────────────────────────────────────────────
+  for (const [name, proficiency] of [
+    ["English", "NATIVE_OR_BILINGUAL"], ["Malayalam", "NATIVE_OR_BILINGUAL"], ["Hindi", "CONVERSATIONAL"],
+  ] as const) {
+    await prisma.workerLanguage.upsert({
+      where: { workerId_name: { workerId: janeProfile.id, name } },
+      update: {}, create: { workerId: janeProfile.id, name, proficiency },
+    });
+  }
+  for (const [name, proficiency] of [
+    ["English", "FLUENT"], ["Malayalam", "NATIVE_OR_BILINGUAL"], ["Tamil", "BASIC"],
+  ] as const) {
+    await prisma.workerLanguage.upsert({
+      where: { workerId_name: { workerId: arjunProfile.id, name } },
+      update: {}, create: { workerId: arjunProfile.id, name, proficiency },
+    });
+  }
+  for (const [name, proficiency] of [
+    ["English", "FLUENT"], ["Malayalam", "NATIVE_OR_BILINGUAL"], ["Tamil", "CONVERSATIONAL"],
+  ] as const) {
+    await prisma.workerLanguage.upsert({
+      where: { workerId_name: { workerId: priyaProfile.id, name } },
+      update: {}, create: { workerId: priyaProfile.id, name, proficiency },
+    });
+  }
+
+  // ── Sandbox submissions (Jane has completed all 3 challenges) ─────────────
+  await prisma.sandboxSubmission.upsert({
+    where: { workerId_challengeId: { workerId: janeProfile.id, challengeId: DEMO_IDS.challenges[0] } },
+    update: {},
+    create: {
+      workerId: janeProfile.id, challengeId: DEMO_IDS.challenges[0],
+      answers: { q1: 0, q2: 0, q3: "Use React.memo, virtualization (react-window), and avoid re-renders by stabilising references.", q4: 0, q5: "Create a useDebounce hook with useEffect and a timeout that returns the debounced value." },
+      score: 96, gradedAt: new Date(Date.now() - 7 * 86400000),
+    },
+  });
+  await prisma.sandboxSubmission.upsert({
+    where: { workerId_challengeId: { workerId: janeProfile.id, challengeId: DEMO_IDS.challenges[1] } },
+    update: {},
+    create: {
+      workerId: janeProfile.id, challengeId: DEMO_IDS.challenges[1],
+      answers: { q1: 0, q2: 0, q3: "I start with a blank state that communicates value — e.g., 'Add your first metric' with a ghost chart outline.", q4: 0, q5: "Progressive disclosure reveals complexity only when needed, like showing advanced filter options only after a user clicks 'More filters'." },
+      score: 88, gradedAt: new Date(Date.now() - 7 * 86400000),
+    },
+  });
+  await prisma.sandboxSubmission.upsert({
+    where: { workerId_challengeId: { workerId: janeProfile.id, challengeId: DEMO_IDS.challenges[2] } },
+    update: {},
+    create: {
+      workerId: janeProfile.id, challengeId: DEMO_IDS.challenges[2],
+      answers: { q1: 0, q2: "Fresh roasts, zero wait — order Bloom Coffee delivered to your door in 30 minutes. Sourced from Coorg, brewed your way.", q3: 0, q4: 0, q5: "I'd map content to the funnel: awareness (SEO blogs), consideration (case studies, webinars), decision (trials, comparison pages)." },
+      score: 72, gradedAt: new Date(Date.now() - 7 * 86400000),
+    },
+  });
+
+  // ── Job applications ───────────────────────────────────────────────────────
+  await prisma.jobApplication.upsert({
+    where: { id: DEMO_IDS.applications[0] },
+    update: {},
+    create: {
+      id: DEMO_IDS.applications[0],
+      jobId: job1.id, workerId: janeProfile.id,
+      coverLetter: "Hi, I've built 3 similar dashboards — most recently for a Series A SaaS with 200 daily active users. Happy to share the Figma and live demo.",
+      rateType: "FIXED", proposedRate: 55000, estimatedDays: 18,
+      status: "HIRED", appliedAt: new Date(Date.now() - 8 * 86400000),
+    },
+  });
+  await prisma.jobApplication.upsert({
+    where: { id: DEMO_IDS.applications[1] },
+    update: {},
+    create: {
+      id: DEMO_IDS.applications[1],
+      jobId: job2.id, workerId: arjunProfile.id,
+      coverLetter: "Brand identity is my core specialty. I've done 12+ logo + brand kits for F&B businesses. Would love to show you the Bloom café case study.",
+      rateType: "FIXED", proposedRate: 20000, estimatedDays: 7,
+      status: "PENDING", appliedAt: new Date(Date.now() - 2 * 86400000),
+    },
+  });
+  const kiranProfile = await prisma.workerProfile.findUnique({ where: { userId: kiran.id } });
+  if (kiranProfile) {
+    await prisma.jobApplication.upsert({
+      where: { id: DEMO_IDS.applications[2] },
+      update: {},
+      create: {
+        id: DEMO_IDS.applications[2],
+        jobId: job1.id, workerId: kiranProfile.id,
+        coverLetter: "I'm a mobile developer but I have strong React skills too — happy to help with the dashboard.",
+        rateType: "FIXED", proposedRate: 45000, estimatedDays: 21,
+        status: "PENDING", appliedAt: new Date(Date.now() - 5 * 86400000),
+      },
+    });
+  }
+
+  // ── Review (Acme reviews Jane after first milestone) ──────────────────────
+  await prisma.review.upsert({
+    where: { connectionId: conn.id },
+    update: {},
+    create: {
+      connectionId: conn.id, workerId: janeProfile.id, clientId: acme.id,
+      rating: 5,
+      qualityRating: 5, communicationRating: 5, professionalismRating: 5,
+      reliabilityRating: 5, flexibilityRating: 4,
+      comment: "Jane delivered the wireframe ahead of schedule and the code quality is exceptional. She asked exactly the right questions upfront and required zero micromanagement. Would hire again immediately.",
+    },
+  });
+
+  // ── Sub-job (Jane posts a testing role from her contract) ─────────────────
+  await prisma.subJob.upsert({
+    where: { id: DEMO_IDS.subJob },
+    update: {},
+    create: {
+      id: DEMO_IDS.subJob,
+      parentConnectionId: conn.id, postedById: janeProfile.id,
+      title: "Frontend Testing & QA — Marketing Dashboard",
+      description: "Need someone to write Playwright E2E tests and manual test the dashboard across browsers and screen sizes. 2–3 days max.",
+      skills: ["Testing", "Playwright", "QA", "React"],
+      budget: "8,000", isPublic: true,
+    },
+  });
+
+  // ── Standby assignments ────────────────────────────────────────────────────
+  await prisma.standbyAssignment.upsert({
+    where: { jobId_workerId: { jobId: job1.id, workerId: arjunProfile.id } },
+    update: {},
+    create: { jobId: job1.id, workerId: arjunProfile.id, isActive: true },
+  });
+  await prisma.standbyAssignment.upsert({
+    where: { jobId_workerId: { jobId: job2.id, workerId: priyaProfile.id } },
+    update: {},
+    create: { jobId: job2.id, workerId: priyaProfile.id, isActive: true },
+  });
+
+  // ── Squad ──────────────────────────────────────────────────────────────────
   const squad = await prisma.squad.upsert({
     where: { id: DEMO_IDS.squad },
     update: {},
-    create: { id: DEMO_IDS.squad, name: "Kochi Creatives", description: "Full-stack team: dev + design + copy.", sharedReputationScore: 97 },
+    create: { id: DEMO_IDS.squad, name: "Kochi Creatives", description: "Full-stack team: dev + design + copy. We ship complete products.", sharedReputationScore: 97 },
   });
   await prisma.squadMembership.upsert({
     where: { squadId_userId: { squadId: squad.id, userId: jane.id } },
@@ -324,7 +751,7 @@ export async function seedDemoData(): Promise<{ success?: boolean; error?: strin
     update: {}, create: { squadId: squad.id, userId: priya.id, role: "CONTRIBUTOR" },
   });
 
-  // Sandbox challenges
+  // ── Sandbox challenges ─────────────────────────────────────────────────────
   await prisma.sandboxChallenge.upsert({
     where: { id: DEMO_IDS.challenges[0] },
     update: {},
@@ -374,10 +801,10 @@ export async function seedDemoData(): Promise<{ success?: boolean; error?: strin
     },
   });
 
-  // Merchant offers
+  // ── Merchant offers ────────────────────────────────────────────────────────
   for (const [i, offer] of [
     { merchantName: "Café Arabica", category: "Food & Drink", description: "15% off all beverages for verified QuickQuid freelancers", discountPercent: 15, address: "MG Road, Kochi", lat: 9.9312, lng: 76.2673 },
-    { merchantName: "Print Zone", category: "Services", description: "20% off printing & binding for portfolios", discountPercent: 20, address: "Ernakulam North, Kochi", lat: 9.9425, lng: 76.2609 },
+    { merchantName: "Print Zone", category: "Services", description: "20% off printing & binding for portfolios and presentations", discountPercent: 20, address: "Ernakulam North, Kochi", lat: 9.9425, lng: 76.2609 },
     { merchantName: "FitSpace Gym", category: "Health & Fitness", description: "Free first month membership for KYC-verified workers", discountPercent: 100, address: "Vyttila, Kochi", lat: 9.9587, lng: 76.2970 },
   ].entries()) {
     await prisma.merchantOffer.upsert({
@@ -388,8 +815,14 @@ export async function seedDemoData(): Promise<{ success?: boolean; error?: strin
   }
 
   revalidatePath("/admin/oversight");
+  revalidatePath("/admin/applications");
+  revalidatePath("/admin/triage");
+  revalidatePath("/admin/matchmaking");
+  revalidatePath("/admin/standby");
   revalidatePath("/client/catalog");
-  return { success: true, message: "Demo data seeded — 4 workers, 1 client, 3 service packages, 2 jobs" };
+  revalidatePath("/client/board");
+  revalidatePath("/client/talent");
+  return { success: true, message: "Demo data seeded — workers, clients, portfolios, credentials, messages, applications, and more." };
 }
 
 export async function clearDemoData(): Promise<{ success?: boolean; error?: string; message?: string }> {
