@@ -1,12 +1,22 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { SignUpForm } from "./sign-up-form";
+import { getSession } from "@/lib/auth";
 
 interface SignUpPageProps {
   searchParams: Promise<{ role?: string; ref?: string }>;
 }
 
 export default async function SignUpPage({ searchParams }: SignUpPageProps) {
+  const session = await getSession();
+  if (session) {
+    if (session.role === "WORKER") redirect("/worker/dashboard");
+    if (session.role === "CLIENT") redirect("/client/dashboard");
+    if (session.role === "ADMIN") redirect("/admin/dashboard");
+    redirect("/");
+  }
+
   const { role, ref } = await searchParams;
   const defaultRole = role === "CLIENT" ? "CLIENT" : "WORKER";
 

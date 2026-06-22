@@ -447,7 +447,7 @@ export default async function WorkerDashboardPage() {
                                   m.status === "IN_PROGRESS" ? "bg-blue-50 text-blue-700 border-blue-200" :
                                   "bg-muted text-muted-foreground"
                                 }`}>
-                                  {m.status}
+                                  {m.status === "IN_PROGRESS" ? "In Progress" : m.status === "APPROVED" ? "Approved" : m.status === "DELIVERED" ? "Delivered" : "Pending"}
                                 </Badge>
                               </div>
                             </div>

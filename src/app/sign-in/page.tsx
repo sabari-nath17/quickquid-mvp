@@ -1,8 +1,18 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { SignInForm } from "./sign-in-form";
+import { getSession } from "@/lib/auth";
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  const session = await getSession();
+  if (session) {
+    if (session.role === "WORKER") redirect("/worker/dashboard");
+    if (session.role === "CLIENT") redirect("/client/dashboard");
+    if (session.role === "ADMIN") redirect("/admin/dashboard");
+    redirect("/");
+  }
+
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-md">
