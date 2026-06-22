@@ -8,6 +8,7 @@ export interface SessionUser {
   email: string;
   name: string | null;
   role: Role;
+  avatarUrl: string | null;
 }
 
 const SESSION_COOKIE = "qq_session";
@@ -42,7 +43,7 @@ export async function getSession(): Promise<SessionUser | null> {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, email: true, name: true, role: true, isSuspended: true },
+    select: { id: true, email: true, name: true, role: true, avatarUrl: true, isSuspended: true },
   });
 
   // Suspended accounts are treated as logged out everywhere immediately.

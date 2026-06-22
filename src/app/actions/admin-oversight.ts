@@ -106,28 +106,28 @@ export async function seedDemoData(): Promise<{ success?: boolean; error?: strin
   // ── Users ──────────────────────────────────────────────────────────────────
   const jane = await prisma.user.upsert({
     where: { email: "jane@dev.com" },
-    update: {},
-    create: { email: "jane@dev.com", name: "Jane Smith", password: workerPass, role: "WORKER" },
+    update: { avatarUrl: "/avatars/jane.jpg" },
+    create: { email: "jane@dev.com", name: "Jane Smith", password: workerPass, role: "WORKER", avatarUrl: "/avatars/jane.jpg" },
   });
   const arjun = await prisma.user.upsert({
     where: { email: "arjun@design.com" },
-    update: {},
-    create: { email: "arjun@design.com", name: "Arjun Nair", password: workerPass, role: "WORKER" },
+    update: { avatarUrl: "/avatars/arjun.jpg" },
+    create: { email: "arjun@design.com", name: "Arjun Nair", password: workerPass, role: "WORKER", avatarUrl: "/avatars/arjun.jpg" },
   });
   const priya = await prisma.user.upsert({
     where: { email: "priya@write.com" },
-    update: {},
-    create: { email: "priya@write.com", name: "Priya Menon", password: workerPass, role: "WORKER" },
+    update: { avatarUrl: "/avatars/priya.jpg" },
+    create: { email: "priya@write.com", name: "Priya Menon", password: workerPass, role: "WORKER", avatarUrl: "/avatars/priya.jpg" },
   });
   const kiran = await prisma.user.upsert({
     where: { email: "kiran@mobile.com" },
-    update: { referredById: jane.id },
-    create: { email: "kiran@mobile.com", name: "Kiran Dev", password: workerPass, role: "WORKER", referredById: jane.id },
+    update: { referredById: jane.id, avatarUrl: "/avatars/kiran.jpg" },
+    create: { email: "kiran@mobile.com", name: "Kiran Dev", password: workerPass, role: "WORKER", referredById: jane.id, avatarUrl: "/avatars/kiran.jpg" },
   });
   const acme = await prisma.user.upsert({
     where: { email: "acme@company.com" },
-    update: {},
-    create: { email: "acme@company.com", name: "Acme Corp", password: clientPass, role: "CLIENT" },
+    update: { avatarUrl: "/avatars/acme.jpg" },
+    create: { email: "acme@company.com", name: "Acme Corp", password: clientPass, role: "CLIENT", avatarUrl: "/avatars/acme.jpg" },
   });
 
   // ── Worker profiles (full fields) ─────────────────────────────────────────

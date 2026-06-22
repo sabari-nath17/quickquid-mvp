@@ -11,46 +11,60 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ShieldCheck } from "lucide-react";
+
+// Links shown in the top navigation bar (core workflow only)
+const primaryNavLinks: Record<string, { href: string; label: string }[]> = {
+  CLIENT: [
+    { href: "/client/dashboard", label: "Dashboard" },
+    { href: "/client/catalog", label: "Catalog" },
+    { href: "/client/orders", label: "Orders" },
+    { href: "/client/board", label: "Merit Board" },
+    { href: "/client/talent", label: "Browse Talent" },
+    { href: "/client/post-job", label: "Post a Job" },
+  ],
+  WORKER: [
+    { href: "/worker/dashboard", label: "Dashboard" },
+    { href: "/worker/jobs", label: "Find Jobs" },
+    { href: "/worker/services", label: "My Services" },
+    { href: "/worker/network", label: "Network" },
+  ],
+  ADMIN: [
+    { href: "/admin/dashboard", label: "Dashboard" },
+    { href: "/admin/oversight", label: "Oversight" },
+    { href: "/admin/triage", label: "Triage" },
+    { href: "/admin/matchmaking", label: "Matchmaking" },
+    { href: "/admin/applications", label: "Applications" },
+    { href: "/admin/squads", label: "Squads" },
+    { href: "/admin/standby", label: "Standby" },
+    { href: "/admin/jobs", label: "Jobs" },
+  ],
+};
+
+// Links shown inside the profile dropdown (profile management)
+const profileDropdownLinks: Record<string, { href: string; label: string }[]> = {
+  WORKER: [
+    { href: "/worker/onboarding", label: "My Profile" },
+    { href: "/worker/portfolio", label: "Portfolio" },
+    { href: "/worker/credentials", label: "Credentials" },
+    { href: "/worker/sandbox", label: "Sandbox" },
+    { href: "/worker/applications", label: "Applications" },
+    { href: "/worker/referrals", label: "Refer & Earn" },
+  ],
+  CLIENT: [],
+  ADMIN: [],
+};
 
 export async function Navbar() {
   const session = await getSession();
 
-  const roleLinks: Record<string, { href: string; label: string }[]> = {
-    CLIENT: [
-      { href: "/client/dashboard", label: "Dashboard" },
-      { href: "/client/catalog", label: "Catalog" },
-      { href: "/client/orders", label: "Orders" },
-      { href: "/client/board", label: "Merit Board" },
-      { href: "/client/talent", label: "Browse Talent" },
-      { href: "/client/post-job", label: "Post a Job" },
-    ],
-    WORKER: [
-      { href: "/worker/dashboard", label: "Dashboard" },
-      { href: "/worker/jobs", label: "Find Jobs" },
-      { href: "/worker/services", label: "My Services" },
-      { href: "/worker/portfolio", label: "Portfolio" },
-      { href: "/worker/credentials", label: "Credentials" },
-      { href: "/worker/applications", label: "Applications" },
-      { href: "/worker/network", label: "Network" },
-      { href: "/worker/referrals", label: "Refer" },
-      { href: "/worker/onboarding", label: "Profile" },
-      { href: "/worker/sandbox", label: "Sandbox" },
-    ],
-    ADMIN: [
-      { href: "/admin/dashboard", label: "Dashboard" },
-      { href: "/admin/oversight", label: "Oversight" },
-      { href: "/admin/triage", label: "Triage" },
-      { href: "/admin/matchmaking", label: "Matchmaking" },
-      { href: "/admin/applications", label: "Applications" },
-      { href: "/admin/squads", label: "Squads" },
-      { href: "/admin/standby", label: "Standby" },
-      { href: "/admin/jobs", label: "Jobs" },
-    ],
-  };
+  const navLinks = session ? primaryNavLinks[session.role] ?? [] : [];
+  const dropdownProfileLinks = session ? profileDropdownLinks[session.role] ?? [] : [];
 
-  const links = session ? roleLinks[session.role] ?? [] : [];
+  const initials = session?.name
+    ? session.name.slice(0, 2).toUpperCase()
+    : session?.email.slice(0, 2).toUpperCase() ?? "?";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-sm">
@@ -73,7 +87,7 @@ export async function Navbar() {
 
             {session && (
               <nav className="hidden md:flex items-center gap-1">
-                {links.map((link) => (
+                {navLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
@@ -103,31 +117,47 @@ export async function Navbar() {
                     }
                   >
                     <Avatar className="w-9 h-9">
+                      {session.avatarUrl && (
+                        <AvatarImage src={session.avatarUrl} alt={session.name ?? "Avatar"} />
+                      )}
                       <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
-                        {session.name
-                          ? session.name.slice(0, 2).toUpperCase()
-                          : session.email.slice(0, 2).toUpperCase()}
+                        {initials}
                       </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <div className="px-3 py-2">
-                      <p className="text-sm font-medium truncate">
-                        {session.name || "User"}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {session.email}
-                      </p>
+
+                  <DropdownMenuContent align="end" className="w-52">
+                    {/* User info header */}
+                    <div className="px-3 py-2 flex items-center gap-2">
+                      <Avatar className="w-8 h-8 flex-shrink-0">
+                        {session.avatarUrl && (
+                          <AvatarImage src={session.avatarUrl} alt={session.name ?? "Avatar"} />
+                        )}
+                        <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
+                          {initials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{session.name || "User"}</p>
+                        <p className="text-xs text-muted-foreground truncate">{session.email}</p>
+                      </div>
                     </div>
-                    <DropdownMenuSeparator />
-                    {links.map((link) => (
-                      <DropdownMenuItem
-                        key={link.href}
-                        render={<Link href={link.href} />}
-                      >
-                        {link.label}
-                      </DropdownMenuItem>
-                    ))}
+
+                    {/* Profile management links (workers only) */}
+                    {dropdownProfileLinks.length > 0 && (
+                      <>
+                        <DropdownMenuSeparator />
+                        {dropdownProfileLinks.map((link) => (
+                          <DropdownMenuItem
+                            key={link.href}
+                            render={<Link href={link.href} />}
+                          >
+                            {link.label}
+                          </DropdownMenuItem>
+                        ))}
+                      </>
+                    )}
+
                     <DropdownMenuSeparator />
                     <form action={signOut}>
                       <DropdownMenuItem
